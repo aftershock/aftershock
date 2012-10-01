@@ -1,0 +1,36 @@
+# Disable the creation of .orig
+suffix=none
+# Use inline bracket style indentation
+A2
+# Convert all non-indentation tab into spaces
+convert-tabs
+# Force unix line ends
+lineend=linux
+# Use C formatting
+mode=c
+# Preserve date
+preserve-date
+# Show only formatted files info
+formatted
+
+# Indent 'case' statements in switch blocks
+indent-switches
+# Ident also comments on the first line of a block
+indent-col1-comments
+# Limit the max number of spaces that can bu used to indent a continuation line
+max-instatement-indent=79
+
+# Pad operators
+pad-oper
+# Pad control statements (if, while, ...)
+pad-header
+# Remove white spaces at the begin/end of bracket
+unpad-paren
+# Stick pointer/reference operator to the type
+align-pointer=type
+
+# Keep multi statements in a block
+keep-one-line-blocks
+# Keep multi statements on a single line
+keep-one-line-statements
+
