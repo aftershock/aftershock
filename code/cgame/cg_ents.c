@@ -132,8 +132,10 @@ static void CG_EntityEffects(centity_t* cent) {
             trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin,
                                    cgs.gameSounds[ cent->currentState.loopSound ]);
         } else {
-            trap_S_AddRealLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin,
+	    if (s_ambient.integer) {
+		trap_S_AddRealLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin,
                                        cgs.gameSounds[ cent->currentState.loopSound ]);
+	    }
         }
     }
 
@@ -203,6 +205,10 @@ Speaker entities can automatically play sounds
 ==================
 */
 static void CG_Speaker(centity_t* cent) {
+    if (! s_ambient.integer ) {
+      return;
+    }
+  
     if (! cent->currentState.clientNum) {    // FIXME: use something other than clientNum...
         return;     // not auto triggering
     }
