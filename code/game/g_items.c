@@ -659,6 +659,28 @@ gentity_t* Drop_Item_Weapon(gentity_t* ent, gitem_t* item, float angle) {
     return LaunchItem(item, ent->s.pos.trBase, velocity, qtrue, ammo);
 }
 
+/*
+================
+Drop_Item_Flag
+
+Spawns a flag and tosses it forward
+Used for flagdrop
+================
+*/
+gentity_t* Drop_Item_Flag(gentity_t* ent, gitem_t* item, float angle) {
+    vec3_t  velocity;
+    vec3_t  angles;
+
+    VectorCopy(ent->s.apos.trBase, angles);
+    angles[YAW] += angle;
+    angles[PITCH] = 0;  // always forward
+
+    AngleVectors(angles, velocity, NULL, NULL);
+    VectorScale(velocity, 150, velocity);
+    velocity[2] += 200 + crandom() * 50;
+
+    return LaunchItem(item, ent->s.pos.trBase, velocity, qtrue, -1);
+}
 
 /*
 ================
