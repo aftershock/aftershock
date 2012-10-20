@@ -1088,6 +1088,14 @@ static void CG_ServerCommand(void) {
         cg.levelShot = qtrue;
         return;
     }
+    
+    // this servercommand is used for weapondrop, it will be changed when the enhanced weapon command is implemented
+    // to keep the right weaponorder, so it will be handled like the weapon is empty
+    if (!strcmp(cmd, "changeWeapon")) {
+        cg.weaponSelect = WP_GAUNTLET;
+        cg.weaponSelectTime = cg.time;
+        return;
+    }
 
     CG_Printf("Unknown client game command: %s\n", cmd);
 }

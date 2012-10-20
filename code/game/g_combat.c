@@ -171,7 +171,7 @@ void TossClientCubes(gentity_t* self) {
         VectorClear(origin) ;
     }
 
-    drop = LaunchItem(item, origin, velocity);
+    drop = LaunchItem(item, origin, velocity, qfalse, 0);
 
     drop->nextthink = level.time + g_cubeTimeout.integer * 1000;
     drop->think = G_FreeEntity;

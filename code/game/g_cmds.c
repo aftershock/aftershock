@@ -1571,6 +1571,46 @@ void Cmd_Stats_f(gentity_t* ent) {
 
 /*
 =================
+Cmd_DropWeapon_f
+=================
+*/
+void Cmd_DropWeapon_f(gentity_t* ent) {
+    int weapon;
+    gitem_t *item;
+    
+    if (!(g_itemDrop.integer & 2)) {
+        return;
+    }
+    
+    if (ent->client->ps.pm_type == PM_DEAD) {
+        return;
+    }
+    
+    weapon = ent->s.weapon;
+    
+    if (weapon <= WP_GAUNTLET||weapon >= WP_NUM_WEAPONS) {
+        return;
+    }
+    // This check seems useless by now, since its clear the player has the weapon(its in his hands)
+    // This will help for the dropweapon X command to drop the weapon X
+    if (ent->client->ps.stats[STAT_WEAPONS] & (1 << weapon)) {
+        item = BG_FindItemForWeapon(weapon);
+        Drop_Item_Weapon(ent,item,0);
+    }
+    trap_SendServerCommand(ent - g_entities, "changeWeapon");
+}
+
+/*
+=================
+Cmd_DropFlag_f
+=================
+*/
+void Cmd_DropFlag_f(gentity_t* ent) {
+    
+}
+
+/*
+=================
 ClientCommand
 =================
 */
@@ -1677,6 +1717,10 @@ void ClientCommand(int clientNum) {
         Cmd_SetViewpos_f(ent);
     else if (Q_stricmp(cmd, "stats") == 0)
         Cmd_Stats_f(ent);
+    else if (Q_stricmp(cmd, "dropweapon") == 0)
+        Cmd_DropWeapon_f(ent);
+    else if (Q_stricmp(cmd, "dropflag") == 0)
+        Cmd_DropFlag_f(ent);
     else
         trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }
