@@ -1596,8 +1596,8 @@ void Cmd_DropWeapon_f(gentity_t* ent) {
     if (ent->client->ps.stats[STAT_WEAPONS] & (1 << weapon)) {
         item = BG_FindItemForWeapon(weapon);
         Drop_Item_Weapon(ent,item,0);
+        trap_SendServerCommand(ent - g_entities, "changeWeapon");
     }
-    trap_SendServerCommand(ent - g_entities, "changeWeapon");
 }
 
 /*

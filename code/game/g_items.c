@@ -403,7 +403,7 @@ void RespawnItem(gentity_t* ent) {
     ent->nextthink = 0;
 }
 
-#define ITEMDROP_DELAY 1000
+#define ITEMDROP_DELAY 500
 /*
 ===============
 Touch_Item
@@ -598,6 +598,7 @@ gentity_t* LaunchItem(gitem_t* item, vec3_t origin, vec3_t velocity, qboolean it
     if (itemdrop) {
         dropped->droptime = level.time;
         dropped->dropquantity = dropquantity;
+        dropped->s.eFlags |= EF_DEAD;
     } else {
         dropped->droptime = -1;
     }
