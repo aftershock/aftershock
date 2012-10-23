@@ -968,6 +968,39 @@ static void CG_RemoveChatEscapeChar(char* text) {
 
 /*
 =================
+CG_CheckHighlight
+=================
+*/
+static qboolean CG_CheckHighlight(const char* in) {
+    char highlight[32];
+    int highlightLength=0;
+    int i;
+    char text[MAX_SAY_TEXT];
+
+    if (!cg_highlight.integer) {
+        return qfalse;
+    }
+    Q_strncpyz(text, in, sizeof(text));
+    Q_CleanStr(text);
+    for (i=0;i<=strlen(cg_highlightNames.string);i++) {
+        if (cg_highlightNames.string[i] == ' ' || cg_highlightNames.string[i] == '\0'){
+            if (highlightLength) {
+                highlight[highlightLength]=0;
+                if (Q_stristr(text,highlight)) {
+                    return qtrue;
+                }
+                highlightLength=0;
+            }
+        } else {
+            highlight[highlightLength]=cg_highlightNames.string[i];
+            highlightLength++;
+        }
+    }
+    return qfalse;
+}
+
+/*
+=================
 CG_ServerCommand
 
 The string has been tokenized and can be retrieved with
@@ -1011,19 +1044,38 @@ static void CG_ServerCommand(void) {
 
     if (!strcmp(cmd, "chat")) {
         if (!cg_teamChatsOnly.integer) {
-            trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
             Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
             CG_RemoveChatEscapeChar(text);
-            CG_Printf("%s\n", text);
+            if (!atoi(CG_Argv(2)) && CG_CheckHighlight(text)) {
+                trap_S_StartLocalSound(cgs.media.talkSound[(cg_personalChatSound.integer-1)%3], CHAN_LOCAL_SOUND);
+                CG_Printf("^1[^7%s^1]\n", text);
+            } else {
+                trap_S_StartLocalSound(cgs.media.talkSound[(cg_chatSound.integer-1)%3], CHAN_LOCAL_SOUND);
+                CG_Printf("%s\n", text);
+            }
         }
         return;
     }
 
     if (!strcmp(cmd, "tchat")) {
-        trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
         Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
         CG_RemoveChatEscapeChar(text);
-        CG_AddToTeamChat(text);
+        if (!atoi(CG_Argv(2)) && CG_CheckHighlight(text)) {
+                trap_S_StartLocalSound(cgs.media.talkSound[(cg_personalChatSound.integer-1)%3], CHAN_LOCAL_SOUND);
+                CG_AddToTeamChat(va("^1[^7%s^1]",text));
+                CG_Printf("^1[^7%s^1]\n", text);
+            } else {
+                trap_S_StartLocalSound(cgs.media.talkSound[(cg_teamChatSound.integer-1)%3], CHAN_LOCAL_SOUND);
+                CG_AddToTeamChat(text);
+                CG_Printf("%s\n", text);
+        }
+        return;
+    }
+
+    if (!strcmp(cmd, "pchat")) {
+        trap_S_StartLocalSound(cgs.media.talkSound[(cg_personalChatSound.integer-1)%3], CHAN_LOCAL_SOUND);
+        Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
+        CG_RemoveChatEscapeChar(text);
         CG_Printf("%s\n", text);
         return;
     }

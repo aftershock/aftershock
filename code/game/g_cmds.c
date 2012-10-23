@@ -808,9 +808,9 @@ static void G_SayTo(gentity_t* ent, gentity_t* other, int mode, int color, const
         return;
     }
 
-    trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
-                                                  mode == SAY_TEAM ? "tchat" : "chat",
-                                                  name, Q_COLOR_ESCAPE, color, message));
+    trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\" %i",
+                                                  mode == SAY_TEAM ? "tchat" : ( mode == SAY_ALL ? "chat" : "pchat" ),
+                                                  name, Q_COLOR_ESCAPE, color, message, ent == other ? 1 : 0 ));
 }
 
 #define EC      "\x19"

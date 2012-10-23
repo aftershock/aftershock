@@ -183,6 +183,11 @@ vmCvar_t    cg_oldRail;
 vmCvar_t    cg_oldRocket;
 vmCvar_t    cg_oldPlasma;
 vmCvar_t    cg_trueLightning;
+vmCvar_t    cg_chatSound;
+vmCvar_t    cg_teamChatSound;
+vmCvar_t    cg_personalChatSound;
+vmCvar_t    cg_highlight;
+vmCvar_t    cg_highlightNames;
 
 #ifdef MISSIONPACK
 vmCvar_t    cg_redTeamName;
@@ -316,7 +321,12 @@ static cvarTable_t cvarTable[] = {
     { &cg_oldRail, "cg_oldRail", "1", CVAR_ARCHIVE},
     { &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
     { &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
-    { &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE}
+    { &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
+    { &cg_chatSound, "cg_chatSound", "1", CVAR_ARCHIVE},
+    { &cg_teamChatSound, "cg_teamChatSound", "2", CVAR_ARCHIVE},
+    { &cg_personalChatSound, "cg_personalChatSound", "3", CVAR_ARCHIVE},
+    { &cg_highlight, "cg_highlight", "0", CVAR_ARCHIVE},
+    { &cg_highlightNames, "cg_highlightNames", "", CVAR_ARCHIVE}
     //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 
@@ -639,7 +649,9 @@ static void CG_RegisterSounds(void) {
 
     cgs.media.noAmmoSound = trap_S_RegisterSound("sound/weapons/noammo.wav", qfalse);
 
-    cgs.media.talkSound = trap_S_RegisterSound("sound/player/talk.wav", qfalse);
+    cgs.media.talkSound[0] = trap_S_RegisterSound("sound/player/talk.wav", qfalse);
+    cgs.media.talkSound[1] = trap_S_RegisterSound("sound/player/teamtalk.wav", qfalse);
+    cgs.media.talkSound[2] = trap_S_RegisterSound("sound/player/personaltalk.wav", qfalse);
     cgs.media.landSound = trap_S_RegisterSound("sound/player/land1.wav", qfalse);
 
     cgs.media.hitSound = trap_S_RegisterSound("sound/feedback/hit.wav", qfalse);
