@@ -183,6 +183,7 @@ vmCvar_t    cg_oldRail;
 vmCvar_t    cg_oldRocket;
 vmCvar_t    cg_oldPlasma;
 vmCvar_t    cg_trueLightning;
+vmCvar_t    cg_hitBeep;
 
 #ifdef MISSIONPACK
 vmCvar_t    cg_redTeamName;
@@ -316,7 +317,8 @@ static cvarTable_t cvarTable[] = {
     { &cg_oldRail, "cg_oldRail", "1", CVAR_ARCHIVE},
     { &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
     { &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
-    { &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE}
+    { &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
+    { &cg_hitBeep, "cg_hitBeep", "2", CVAR_ARCHIVE}
     //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 
@@ -642,11 +644,11 @@ static void CG_RegisterSounds(void) {
     cgs.media.talkSound = trap_S_RegisterSound("sound/player/talk.wav", qfalse);
     cgs.media.landSound = trap_S_RegisterSound("sound/player/land1.wav", qfalse);
 
-    cgs.media.hitSound = trap_S_RegisterSound("sound/feedback/hit.wav", qfalse);
-#ifdef MISSIONPACK
-    cgs.media.hitSoundHighArmor = trap_S_RegisterSound("sound/feedback/hithi.wav", qfalse);
-    cgs.media.hitSoundLowArmor = trap_S_RegisterSound("sound/feedback/hitlo.wav", qfalse);
-#endif
+    cgs.media.hitSound[4] = trap_S_RegisterSound("sound/feedback/hitlower.wav", qfalse);
+    cgs.media.hitSound[3] = trap_S_RegisterSound("sound/feedback/hitlow.wav", qfalse);
+    cgs.media.hitSound[2] = trap_S_RegisterSound("sound/feedback/hit.wav", qfalse);
+    cgs.media.hitSound[1] = trap_S_RegisterSound("sound/feedback/hithigh.wav", qfalse);
+    cgs.media.hitSound[0] = trap_S_RegisterSound("sound/feedback/hithigher.wav", qfalse);
 
     cgs.media.impressiveSound = trap_S_RegisterSound("sound/feedback/impressive.wav", qtrue);
     cgs.media.excellentSound = trap_S_RegisterSound("sound/feedback/excellent.wav", qtrue);

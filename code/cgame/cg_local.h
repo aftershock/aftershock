@@ -883,9 +883,7 @@ typedef struct {
     sfxHandle_t twoFragSound;
     sfxHandle_t oneFragSound;
 
-    sfxHandle_t hitSound;
-    sfxHandle_t hitSoundHighArmor;
-    sfxHandle_t hitSoundLowArmor;
+    sfxHandle_t hitSound[5];
     sfxHandle_t hitTeamSound;
     sfxHandle_t impressiveSound;
     sfxHandle_t excellentSound;
@@ -1179,6 +1177,7 @@ extern  vmCvar_t        cg_oldRail;
 extern  vmCvar_t        cg_oldRocket;
 extern  vmCvar_t        cg_oldPlasma;
 extern  vmCvar_t        cg_trueLightning;
+extern  vmCvar_t        cg_hitBeep;
 #ifdef MISSIONPACK
 extern  vmCvar_t        cg_redTeamName;
 extern  vmCvar_t        cg_blueTeamName;
