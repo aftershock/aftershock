@@ -1611,7 +1611,7 @@ CG_Weapon_f
 ===============
 */
 void CG_Weapon_f(void) {
-    int     num;
+    int     i;
 
     if (!cg.snap) {
         return;
@@ -1619,20 +1619,23 @@ void CG_Weapon_f(void) {
     if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
         return;
     }
-
-    num = atoi(CG_Argv(1));
-
-    if (num < 1 || num > MAX_WEAPONS - 1) {
-        return;
+    for ( i = 0; i < WP_NUM_WEAPONS; i++) {
+        cg.weaponSelectList[i] = atoi(CG_Argv(i+1));
+        if (cg.weaponSelectList[i] < 1 || cg.weaponSelectList[i] > MAX_WEAPONS - 1) {
+            cg.weaponSelectList[i] = WP_GAUNTLET;
+        }
     }
 
-    cg.weaponSelectTime = cg.time;
-
-    if (!(cg.snap->ps.stats[STAT_WEAPONS] & (1 << num))) {
-        return;     // don't have the weapon
+    for (i = 0; i < WP_NUM_WEAPONS; i++) {
+        if (cg.snap->ps.stats[STAT_WEAPONS] & (1 << cg.weaponSelectList[i])){
+            if (!cg_noAmmoChange.integer && !CG_WeaponSelectable(cg.weaponSelectList[i])) {
+                continue;
+            }
+            cg.weaponSelectTime = cg.time;
+            cg.weaponSelect = cg.weaponSelectList[i];
+            return;
+        }
     }
-
-    cg.weaponSelect = num;
 }
 
 /*
@@ -1646,6 +1649,13 @@ void CG_OutOfAmmoChange(void) {
     int     i;
 
     cg.weaponSelectTime = cg.time;
+
+    for (i = 0; i < WP_NUM_WEAPONS; i++) {
+        if (CG_WeaponSelectable(cg.weaponSelectList[i])) {
+            cg.weaponSelect = cg.weaponSelectList[i];
+            return;
+        }
+    }
 
     for (i = MAX_WEAPONS - 1 ; i > 0 ; i--) {
         if (CG_WeaponSelectable(i)) {
