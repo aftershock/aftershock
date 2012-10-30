@@ -501,6 +501,9 @@ void SetTeam(gentity_t* ent, char* s) {
     } else if (!Q_stricmp(s, "spectator") || !Q_stricmp(s, "s")) {
         team = TEAM_SPECTATOR;
         specState = SPECTATOR_FREE;
+    } else if (!Q_stricmp(s, "speconly")) {
+        team = TEAM_SPECTATOR;
+        specState = SPECONLY_FREE;
     } else if (g_gametype.integer >= GT_TEAM) {
         // if running a team game, assign player to one of the teams
         specState = SPECTATOR_NOT;
@@ -615,7 +618,11 @@ to free floating spectator mode
 void StopFollowing(gentity_t* ent) {
     ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
     ent->client->sess.sessionTeam = TEAM_SPECTATOR;
-    ent->client->sess.spectatorState = SPECTATOR_FREE;
+    if (G_IsSpeconly(ent->client->sess.spectatorState)) {
+        ent->client->sess.spectatorState = SPECONLY_FREE;
+    } else {
+        ent->client->sess.spectatorState = SPECTATOR_FREE;
+    }
     ent->client->ps.pm_flags &= ~PMF_FOLLOW;
     ent->r.svFlags &= ~SVF_BOT;
     ent->client->ps.clientNum = ent - g_entities;
@@ -643,7 +650,11 @@ void Cmd_Team_f(gentity_t* ent) {
                 trap_SendServerCommand(ent - g_entities, "print \"Free team\n\"");
                 break;
             case TEAM_SPECTATOR:
-                trap_SendServerCommand(ent - g_entities, "print \"Spectator team\n\"");
+                if (G_IsSpeconly(ent->client->sess.spectatorState)) {
+                    trap_SendServerCommand(ent - g_entities, "print \"Speconly team\n\"");
+                } else {
+                    trap_SendServerCommand(ent - g_entities, "print \"Spectator team\n\"");
+                }
                 break;
         }
         return;
@@ -678,7 +689,7 @@ void Cmd_Follow_f(gentity_t* ent) {
     char    arg[MAX_TOKEN_CHARS];
 
     if (trap_Argc() != 2) {
-        if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
+        if (G_IsFollowing(ent->client->sess.spectatorState)) {
             StopFollowing(ent);
         }
         return;
@@ -710,8 +721,11 @@ void Cmd_Follow_f(gentity_t* ent) {
     if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
         SetTeam(ent, "spectator");
     }
-
-    ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+    if (G_IsSpeconly(ent->client->sess.spectatorState)) {
+        ent->client->sess.spectatorState = SPECONLY_FOLLOW;
+    } else {
+        ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+    }
     ent->client->sess.spectatorClient = i;
 }
 
@@ -771,7 +785,11 @@ void Cmd_FollowCycle_f(gentity_t* ent, int dir) {
 
         // this is good, we can use it
         ent->client->sess.spectatorClient = clientnum;
-        ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+        if (G_IsSpeconly(ent->client->sess.spectatorState)) {
+            ent->client->sess.spectatorState = SPECONLY_FOLLOW;
+        } else {
+            ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+        }
         return;
     } while (clientnum != original);
 

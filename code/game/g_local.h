@@ -183,10 +183,18 @@ typedef enum {
     CON_CONNECTED
 } clientConnected_t;
 
+#define G_IsFollowing(x)            (x == SPECTATOR_FOLLOW || x == SPECONLY_FOLLOW)
+#define G_IsNotFollowing(x)         (x != SPECTATOR_FOLLOW && x != SPECONLY_FOLLOW)
+#define G_IsFree(x)                 (x == SPECTATOR_FREE || x == SPECONLY_FREE)
+#define G_IsNotFree(x)              (x != SPECTATOR_FREE && x != SPECONLY_FREE)
+#define G_IsSpeconly(x)             (x == SPECONLY_FOLLOW || x == SPECONLY_FREE)
+
 typedef enum {
     SPECTATOR_NOT,
     SPECTATOR_FREE,
     SPECTATOR_FOLLOW,
+    SPECONLY_FREE,
+    SPECONLY_FOLLOW,
     SPECTATOR_SCOREBOARD
 } spectatorState_t;
 
