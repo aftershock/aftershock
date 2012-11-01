@@ -125,22 +125,19 @@ void GL_Cull(int cullType) {
 
     if (cullType == CT_TWO_SIDED) {
         qglDisable(GL_CULL_FACE);
-    } else {
+    }
+    else
+    {
+        qboolean cullFront;
         qglEnable(GL_CULL_FACE);
 
-        if (cullType == CT_BACK_SIDED) {
-            if (backEnd.viewParms.isMirror) {
-                qglCullFace(GL_FRONT);
-            } else {
-                qglCullFace(GL_BACK);
-            }
-        } else {
-            if (backEnd.viewParms.isMirror) {
-                qglCullFace(GL_BACK);
-            } else {
-                qglCullFace(GL_FRONT);
-            }
+        cullFront = (cullType == CT_FRONT_SIDED);
+        if (backEnd.viewParms.isMirror)
+        {
+            cullFront = !cullFront;
         }
+
+        qglCullFace(cullFront ? GL_FRONT : GL_BACK);
     }
 }
 
