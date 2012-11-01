@@ -1401,6 +1401,7 @@ void RE_Shutdown(qboolean destroyWindow) {
     ri.Cmd_RemoveCommand("minimize");
     ri.Cmd_RemoveCommand("modelist");
     ri.Cmd_RemoveCommand("shaderstate");
+    ri.Cmd_RemoveCommand("gfxmeminfo");
 
 
     if (tr.registered) {
