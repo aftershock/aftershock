@@ -439,8 +439,13 @@ void RB_BeginDrawingView(void) {
 
     if (glRefConfig.framebufferObject) {
         // FIXME: HUGE HACK: render to the screen fbo if we've already postprocessed the frame and aren't drawing more world
-        if (backEnd.viewParms.targetFbo == tr.renderFbo && backEnd.framePostProcessed && (backEnd.refdef.rdflags & RDF_NOWORLDMODEL)) {
-            FBO_Bind(tr.screenScratchFbo);
+        // drawing more world check is in case of double renders, such as skyportals
+        if (backEnd.viewParms.targetFbo == NULL) {
+            if (backEnd.framePostProcessed) {
+                FBO_Bind(tr.screenScratchFbo);
+            } else {
+                FBO_Bind(tr.renderFbo);
+            }
         } else {
             FBO_Bind(backEnd.viewParms.targetFbo);
         }
@@ -880,7 +885,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
     }
 
     // FIXME: HUGE hack
-    if (glRefConfig.framebufferObject && !glState.currentFBO) {
+    if (glRefConfig.framebufferObject) {
         if (backEnd.framePostProcessed) {
             FBO_Bind(tr.screenScratchFbo);
         } else {
@@ -1019,7 +1024,7 @@ const void* RB_StretchPic(const void* data) {
     cmd = (const stretchPicCommand_t*)data;
 
     // FIXME: HUGE hack
-    if (glRefConfig.framebufferObject && !glState.currentFBO) {
+    if (glRefConfig.framebufferObject) {
         if (backEnd.framePostProcessed) {
             FBO_Bind(tr.screenScratchFbo);
         } else {
