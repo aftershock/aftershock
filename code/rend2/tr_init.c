@@ -1270,7 +1270,7 @@ void R_InitQueries(void) {
         return;
 
 #ifdef REACTION
-    qglGenQueriesARB(ARRAY_SIZE(tr.sunFlareQuery), tr.sunFlareQuery);
+    qglGenQueriesARB(ARRAY_LEN(tr.sunFlareQuery), tr.sunFlareQuery);
 #endif
 }
 
@@ -1279,7 +1279,7 @@ void R_ShutDownQueries(void) {
         return;
 
 #ifdef REACTION
-    qglDeleteQueriesARB(ARRAY_SIZE(tr.sunFlareQuery), tr.sunFlareQuery);
+    qglDeleteQueriesARB(ARRAY_LEN(tr.sunFlareQuery), tr.sunFlareQuery);
 #endif
 }
 
