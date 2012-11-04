@@ -631,6 +631,11 @@ static void SV_RehashBans_f(void) {
     char* textbuf, *curpos, *maskpos, *newlinepos, *endpos;
     char filepath[MAX_QPATH];
 
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        return;
+    }
+
     serverBansCount = 0;
 
     if (!sv_banFile->string || !*sv_banFile->string)
@@ -694,7 +699,7 @@ static void SV_RehashBans_f(void) {
 
 /*
 ==================
-SV_WriteBans_f
+SV_WriteBans
 
 Save bans to file.
 ==================
@@ -798,6 +803,12 @@ static void SV_AddBanToList(qboolean isexception) {
     int index, argc, mask;
     serverBan_t* curban;
 
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running.\n");
+        return;
+    }
+
     argc = Cmd_Argc();
 
     if (argc < 2 || argc > 3) {
@@ -823,10 +834,6 @@ static void SV_AddBanToList(qboolean isexception) {
         client_t* cl;
 
         // client num.
-        if (!com_sv_running->integer) {
-            Com_Printf("Server is not running.\n");
-            return;
-        }
 
         cl = SV_GetPlayerByNum();
 
@@ -918,6 +925,12 @@ static void SV_DelBanFromList(qboolean isexception) {
     netadr_t ip;
     char* banstring;
 
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running.\n");
+        return;
+    }
+
     if (Cmd_Argc() != 2) {
         Com_Printf("Usage: %s (ip[/subnet] | num)\n", Cmd_Argv(0));
         return;
@@ -990,6 +1003,12 @@ static void SV_ListBans_f(void) {
     int index, count;
     serverBan_t* ban;
 
+    // make sure server is running
+    if (!com_sv_running->integer ){
+        Com_Printf("Server is not running.\n");
+        return;
+    }
+
     // List all bans
     for (index = count = 0; index < serverBansCount; index++) {
         ban = &serverBans[index];
@@ -1021,6 +1040,12 @@ Delete all bans and exceptions.
 */
 
 static void SV_FlushBans_f(void) {
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running.\n");
+        return;
+    }
+
     serverBansCount = 0;
 
     // empty the ban file.
@@ -1209,6 +1234,12 @@ Examine the serverinfo string
 ===========
 */
 static void SV_Serverinfo_f(void) {
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running.\n");
+        return;
+    }
+
     Com_Printf("Server info settings:\n");
     Info_Print(Cvar_InfoString(CVAR_SERVERINFO));
 }
@@ -1218,10 +1249,16 @@ static void SV_Serverinfo_f(void) {
 ===========
 SV_Systeminfo_f
 
-Examine or change the serverinfo string
+Examine the systeminfo string
 ===========
 */
 static void SV_Systeminfo_f(void) {
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running.\n");
+        return;
+    }
+
     Com_Printf("System info settings:\n");
     Info_Print(Cvar_InfoString_Big(CVAR_SYSTEMINFO));
 }
