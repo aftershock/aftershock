@@ -1626,6 +1626,11 @@ void CG_Weapon_f(void) {
         return;
     }
 
+    if (cg.holdWeaponDrop) {
+        trap_SendClientCommand(va("dropweapon %i", num));
+        return;
+    }
+
     cg.weaponSelectTime = cg.time;
 
     if (!(cg.snap->ps.stats[STAT_WEAPONS] & (1 << num))) {

@@ -1577,6 +1577,7 @@ Cmd_DropWeapon_f
 void Cmd_DropWeapon_f(gentity_t* ent) {
     int weapon;
     gitem_t *item;
+    char arg1[MAX_STRING_TOKENS];
     
     if (!(g_itemDrop.integer & 2)) {
         return;
@@ -1586,7 +1587,12 @@ void Cmd_DropWeapon_f(gentity_t* ent) {
         return;
     }
     
-    weapon = ent->s.weapon;
+    if ( trap_Argc() > 1 ) {
+        trap_Argv(1, arg1, sizeof(arg1));
+        weapon = atoi(arg1);
+    } else {
+        weapon = ent->s.weapon;
+    }
     
     if (weapon <= WP_GAUNTLET||weapon >= WP_NUM_WEAPONS) {
         return;
@@ -1596,7 +1602,9 @@ void Cmd_DropWeapon_f(gentity_t* ent) {
     if (ent->client->ps.stats[STAT_WEAPONS] & (1 << weapon)) {
         item = BG_FindItemForWeapon(weapon);
         Drop_Item_Weapon(ent,item,0);
-        trap_SendServerCommand(ent - g_entities, "changeWeapon");
+        if( weapon == ent->s.weapon ) {
+            trap_SendServerCommand(ent - g_entities, "changeWeapon");
+        }
     }
 }
 
