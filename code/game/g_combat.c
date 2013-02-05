@@ -441,6 +441,8 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
         return;
     }
 
+    VectorCopy(self->r.currentOrigin, self->client->deathLocation);
+
     // check for an almost capture
     CheckAlmostCapture(self, attacker);
     // check for a player that almost brought in cubes
@@ -952,6 +954,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker,
             attacker->client->ps.persistant[PERS_HITS]--;
         } else {
             attacker->client->ps.persistant[PERS_HITS]++;
+            attacker->client->lastTarget = targ->s.number;
         }
         attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health << 8) | (client->ps.stats[STAT_ARMOR]);
     }

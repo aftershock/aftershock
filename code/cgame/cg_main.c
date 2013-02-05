@@ -210,7 +210,7 @@ static cvarTable_t cvarTable[] = {
     { &cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE },
     { &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
     { &cg_zoomFov, "cg_zoomfov", "22.5", CVAR_ARCHIVE },
-    { &cg_fov, "cg_fov", "90", CVAR_ARCHIVE },
+    { &cg_fov, "cg_fov", "90", CVAR_ARCHIVE | CVAR_USERINFO },
     { &cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE },
     { &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE  },
     { &cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE  },
