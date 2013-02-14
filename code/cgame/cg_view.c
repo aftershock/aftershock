@@ -335,6 +335,22 @@ static void CG_OffsetFirstPersonView(void) {
         return;
     }
 
+    if (cg_noKick.integer) {
+        // add view height
+        origin[2] += cg.predictedPlayerState.viewheight;
+
+        // smooth out duck height changes
+        timeDelta = cg.time - cg.duckTime;
+        if (timeDelta < DUCK_TIME) {
+            cg.refdef.vieworg[2] -= cg.duckChange
+                                    * (DUCK_TIME - timeDelta) / DUCK_TIME;
+        }
+
+        // add step offset
+        CG_StepOffset();
+        return;
+    }
+
     // add angles based on damage kick
     if (cg.damageTime) {
         ratio = cg.time - cg.damageTime;
