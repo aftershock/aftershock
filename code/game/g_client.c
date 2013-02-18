@@ -1047,6 +1047,7 @@ void ClientSpawn(gentity_t* ent) {
     int     accuracy_hits, accuracy_shots;
     int     eventSequence;
     char    userinfo[MAX_INFO_STRING];
+    int     timeouts;
 
     index = ent - g_entities;
     client = ent->client;
@@ -1101,6 +1102,7 @@ void ClientSpawn(gentity_t* ent) {
         persistant[i] = client->ps.persistant[i];
     }
     eventSequence = client->ps.eventSequence;
+    timeouts = client->timeouts;
 
     Com_Memset(client, 0, sizeof(*client));
 
@@ -1116,6 +1118,7 @@ void ClientSpawn(gentity_t* ent) {
         client->ps.persistant[i] = persistant[i];
     }
     client->ps.eventSequence = eventSequence;
+    client->timeouts = timeouts;
     // increment the spawncount so the client will detect the respawn
     client->ps.persistant[PERS_SPAWN_COUNT]++;
     client->ps.persistant[PERS_TEAM] = client->sess.sessionTeam;
@@ -1215,7 +1218,7 @@ void ClientSpawn(gentity_t* ent) {
     // run a client frame to drop exactly to the floor,
     // initialize animations and other things
     client->ps.commandTime = level.time - 100;
-    ent->client->pers.cmd.serverTime = level.time;
+    ent->client->pers.cmd.serverTime = level.realTime;
     ClientThink(ent - g_entities);
     // run the presend to set anything else
     ClientEndFrame(ent);

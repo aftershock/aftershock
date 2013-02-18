@@ -316,7 +316,8 @@ struct gclient_s {
     int         invulnerabilityTime;
 #endif
 
-    char*        areabits;
+    char*       areabits;
+    int         timeouts;
 };
 
 
@@ -342,6 +343,12 @@ typedef struct {
 
     int         framenum;
     int         time;                   // in msec
+    int         realTime;
+    qboolean    timeout;
+    int         timeoutEnd;
+    int         timeoutAdd;
+    int         timeoutsRed;
+    int         timeoutsBlue;
     int         previousTime;           // so movers can back up when blocked
 
     int         startTime;              // level.time the map was started
@@ -744,6 +751,9 @@ extern  vmCvar_t    g_enableDust;
 extern  vmCvar_t    g_enableBreath;
 extern  vmCvar_t    g_singlePlayer;
 extern  vmCvar_t    g_proxMineTimeout;
+extern  vmCvar_t    g_timeoutTime;
+extern  vmCvar_t    g_timeouts;
+extern  vmCvar_t    g_teamTimeouts;
 
 void    trap_Print(const char* text);
 void    trap_Error(const char* text) __attribute__((noreturn));

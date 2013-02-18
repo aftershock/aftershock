@@ -337,7 +337,7 @@ static void CG_OffsetFirstPersonView(void) {
 
     // add angles based on damage kick
     if (cg.damageTime) {
-        ratio = cg.time - cg.damageTime;
+        ratio = cg.realTime - cg.damageTime;
         if (ratio < DAMAGE_DEFLECT_TIME) {
             ratio /= DAMAGE_DEFLECT_TIME;
             angles[PITCH] += ratio * cg.v_dmg_pitch;
@@ -538,6 +538,9 @@ static int CG_CalcFov(void) {
     } else {
         cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
     }
+    if (cg.timeout) {
+        cg.zoomSensitivity = 0;
+    }
 
     return inwater;
 }
@@ -573,7 +576,7 @@ static void CG_DamageBlendBlob(void) {
     }
 
     maxTime = DAMAGE_TIME;
-    t = cg.time - cg.damageTime;
+    t = cg.realTime - cg.damageTime;
     if (t <= 0 || t >= maxTime) {
         return;
     }
@@ -755,7 +758,16 @@ Generates and draws a game scene and status information at the given time.
 void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoPlayback) {
     int     inwater;
 
-    cg.time = serverTime;
+    cg.realTime = serverTime;
+    if (cg.timeout) {
+        if (cg.timeoutEnd < cg.realTime) {
+            cg.timeout = qfalse;
+        }
+    }
+    if (!cg.timeout) {
+        cg.time = cg.realTime - cg.timeoutAdd;
+    }
+
     cg.demoPlayback = demoPlayback;
 
     // update cvars

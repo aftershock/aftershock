@@ -398,7 +398,7 @@ static void CG_AddToTeamChat(const char* str) {
             }
             *p = 0;
 
-            cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
+            cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.realTime;
 
             cgs.teamChatPos++;
             p = cgs.teamChatMsgs[cgs.teamChatPos % chatHeight];
@@ -423,7 +423,7 @@ static void CG_AddToTeamChat(const char* str) {
     }
     *p = 0;
 
-    cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
+    cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.realTime;
     cgs.teamChatPos++;
 
     if (cgs.teamChatPos - cgs.teamLastChatPos > chatHeight)
@@ -968,6 +968,20 @@ static void CG_RemoveChatEscapeChar(char* text) {
 
 /*
 =================
+CG_ParseTimeout
+=================
+*/
+static void CG_ParseTimeout(void) {
+    cg.timeoutEnd = atoi(CG_Argv(2));
+    cg.timeoutAdd = atoi(CG_Argv(3));
+    cg.timeout = qtrue;
+    Q_strncpyz(cg.timeoutName, CG_Argv(1), sizeof(cg.timeoutName));
+    CG_Printf("%s called a timeout\n", cg.timeoutName);
+    trap_S_StartLocalSound(cgs.media.wearOffSound, CHAN_LOCAL_SOUND);
+}
+
+/*
+=================
 CG_ServerCommand
 
 The string has been tokenized and can be retrieved with
@@ -1086,6 +1100,11 @@ static void CG_ServerCommand(void) {
     // the menu system during development
     if (!strcmp(cmd, "clientLevelShot")) {
         cg.levelShot = qtrue;
+        return;
+    }
+
+    if (!strcmp(cmd, "timeout")) {
+        CG_ParseTimeout();
         return;
     }
 

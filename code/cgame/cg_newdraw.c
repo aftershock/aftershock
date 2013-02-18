@@ -270,8 +270,8 @@ static void CG_DrawPlayerHead(rectDef_t* rect, qboolean draw2D) {
 
     VectorClear(angles);
 
-    if (cg.damageTime && cg.time - cg.damageTime < DAMAGE_TIME) {
-        frac = (float)(cg.time - cg.damageTime) / DAMAGE_TIME;
+    if (cg.damageTime && cg.realTime - cg.damageTime < DAMAGE_TIME) {
+        frac = (float)(cg.realTime - cg.damageTime) / DAMAGE_TIME;
         size = rect->w * 1.25 * (1.5 - frac * 0.5);
 
         stretch = size - rect->w * 1.25;
@@ -283,15 +283,15 @@ static void CG_DrawPlayerHead(rectDef_t* rect, qboolean draw2D) {
         cg.headEndYaw = 180 + 20 * cos(crandom() * M_PI);
         cg.headEndPitch = 5 * cos(crandom() * M_PI);
 
-        cg.headStartTime = cg.time;
-        cg.headEndTime = cg.time + 100 + random() * 2000;
+        cg.headStartTime = cg.realTime;
+        cg.headEndTime = cg.realTime + 100 + random() * 2000;
     } else {
-        if (cg.time >= cg.headEndTime) {
+        if (cg.realTime >= cg.headEndTime) {
             // select a new head angle
             cg.headStartYaw = cg.headEndYaw;
             cg.headStartPitch = cg.headEndPitch;
             cg.headStartTime = cg.headEndTime;
-            cg.headEndTime = cg.time + 100 + random() * 2000;
+            cg.headEndTime = cg.realTime + 100 + random() * 2000;
 
             cg.headEndYaw = 180 + 20 * cos(crandom() * M_PI);
             cg.headEndPitch = 5 * cos(crandom() * M_PI);
@@ -301,11 +301,11 @@ static void CG_DrawPlayerHead(rectDef_t* rect, qboolean draw2D) {
     }
 
     // if the server was frozen for a while we may have a bad head start time
-    if (cg.headStartTime > cg.time) {
-        cg.headStartTime = cg.time;
+    if (cg.headStartTime > cg.realTime) {
+        cg.headStartTime = cg.realTime;
     }
 
-    frac = (cg.time - cg.headStartTime) / (float)(cg.headEndTime - cg.headStartTime);
+    frac = (cg.realTime - cg.headStartTime) / (float)(cg.headEndTime - cg.headStartTime);
     frac = frac * frac * (3 - 2 * frac);
     angles[YAW] = cg.headStartYaw + (cg.headEndYaw - cg.headStartYaw) * frac;
     angles[PITCH] = cg.headStartPitch + (cg.headEndPitch - cg.headStartPitch) * frac;

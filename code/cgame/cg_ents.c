@@ -573,7 +573,7 @@ static void CG_Mover(centity_t* cent) {
     ent.renderfx = RF_NOSHADOW;
 
     // flicker between two skins (FIXME?)
-    ent.skinNum = (cg.time >> 6) & 1;
+    ent.skinNum = (cg.realTime >> 6) & 1;
 
     // get the model, either as a bmodel or a modelindex
     if (s1->solid == SOLID_BMODEL) {
@@ -994,7 +994,7 @@ void CG_AddPacketEntities(void) {
         if (delta == 0) {
             cg.frameInterpolation = 0;
         } else {
-            cg.frameInterpolation = (float)(cg.time - cg.snap->serverTime) / delta;
+            cg.frameInterpolation = (float)(cg.realTime - cg.snap->serverTime) / delta;
         }
     } else {
         cg.frameInterpolation = 0;  // actually, it should never be used, because

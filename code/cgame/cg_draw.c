@@ -385,7 +385,7 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
         len = 0.5 * (maxs[2] - mins[2]);
         origin[0] = len / 0.268;    // len / tan( fov/2 )
 
-        angles[YAW] = 60 * sin(cg.time / 2000.0);;
+        angles[YAW] = 60 * sin(cg.realTime / 2000.0);;
 
         if (team == TEAM_RED) {
             handle = cgs.media.redFlagModel;
@@ -430,8 +430,8 @@ static void CG_DrawStatusBarHead(float x) {
 
     VectorClear(angles);
 
-    if (cg.damageTime && cg.time - cg.damageTime < DAMAGE_TIME) {
-        frac = (float)(cg.time - cg.damageTime) / DAMAGE_TIME;
+    if (cg.damageTime && cg.realTime - cg.damageTime < DAMAGE_TIME) {
+        frac = (float)(cg.realTime - cg.damageTime) / DAMAGE_TIME;
         size = ICON_SIZE * 1.25 * (1.5 - frac * 0.5);
 
         stretch = size - ICON_SIZE * 1.25;
@@ -443,15 +443,15 @@ static void CG_DrawStatusBarHead(float x) {
         cg.headEndYaw = 180 + 20 * cos(crandom() * M_PI);
         cg.headEndPitch = 5 * cos(crandom() * M_PI);
 
-        cg.headStartTime = cg.time;
-        cg.headEndTime = cg.time + 100 + random() * 2000;
+        cg.headStartTime = cg.realTime;
+        cg.headEndTime = cg.realTime + 100 + random() * 2000;
     } else {
-        if (cg.time >= cg.headEndTime) {
+        if (cg.realTime >= cg.headEndTime) {
             // select a new head angle
             cg.headStartYaw = cg.headEndYaw;
             cg.headStartPitch = cg.headEndPitch;
             cg.headStartTime = cg.headEndTime;
-            cg.headEndTime = cg.time + 100 + random() * 2000;
+            cg.headEndTime = cg.realTime + 100 + random() * 2000;
 
             cg.headEndYaw = 180 + 20 * cos(crandom() * M_PI);
             cg.headEndPitch = 5 * cos(crandom() * M_PI);
@@ -461,11 +461,11 @@ static void CG_DrawStatusBarHead(float x) {
     }
 
     // if the server was frozen for a while we may have a bad head start time
-    if (cg.headStartTime > cg.time) {
-        cg.headStartTime = cg.time;
+    if (cg.headStartTime > cg.realTime) {
+        cg.headStartTime = cg.realTime;
     }
 
-    frac = (cg.time - cg.headStartTime) / (float)(cg.headEndTime - cg.headStartTime);
+    frac = (cg.realTime - cg.headStartTime) / (float)(cg.headEndTime - cg.headStartTime);
     frac = frac * frac * (3 - 2 * frac);
     angles[YAW] = cg.headStartYaw + (cg.headEndYaw - cg.headStartYaw) * frac;
     angles[PITCH] = cg.headStartPitch + (cg.headEndPitch - cg.headStartPitch) * frac;
@@ -554,7 +554,7 @@ static void CG_DrawStatusBar(void) {
         origin[0] = 70;
         origin[1] = 0;
         origin[2] = 0;
-        angles[YAW] = 90 + 20 * sin(cg.time / 1000.0);
+        angles[YAW] = 90 + 20 * sin(cg.realTime / 1000.0);
         CG_Draw3DModel(CHAR_WIDTH * 3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE,
                        cg_weapons[ cent->currentState.weapon ].ammoModel, 0, origin, angles);
     }
@@ -573,7 +573,7 @@ static void CG_DrawStatusBar(void) {
         origin[0] = 90;
         origin[1] = 0;
         origin[2] = -10;
-        angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+        angles[YAW] = (cg.realTime & 2047) * 360 / 2048.0;
         CG_Draw3DModel(370 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE,
                        cgs.media.armorModel, 0, origin, angles);
     }
@@ -620,7 +620,7 @@ static void CG_DrawStatusBar(void) {
     } else if (value > 25) {
         trap_R_SetColor(colors[0]);      // green
     } else if (value > 0) {
-        color = (cg.time >> 8) & 1; // flash
+        color = (cg.realTime >> 8) & 1; // flash
         trap_R_SetColor(colors[color]);
     } else {
         trap_R_SetColor(colors[1]);      // red
@@ -684,7 +684,7 @@ static float CG_DrawAttacker(float y) {
         return y;
     }
 
-    t = cg.time - cg.attackerTime;
+    t = cg.realTime - cg.attackerTime;
     if (t > ATTACKER_HEAD_TIME) {
         cg.attackerTime = 0;
         return y;
@@ -1301,7 +1301,7 @@ static int CG_DrawPickupItem(int y) {
 
     value = cg.itemPickup;
     if (value) {
-        fadeColor = CG_FadeColor(cg.itemPickupTime, 3000);
+        fadeColor = CG_FadeColor(cg.itemPickupBlendTime, 3000);
         if (fadeColor) {
             CG_RegisterItemVisuals(value);
             trap_R_SetColor(fadeColor);
@@ -1362,7 +1362,7 @@ static void CG_DrawTeamInfo(void) {
         return; // disabled
 
     if (cgs.teamLastChatPos != cgs.teamChatPos) {
-        if (cg.time - cgs.teamChatMsgTimes[cgs.teamLastChatPos % chatHeight] > cg_teamChatTime.integer) {
+        if (cg.realTime - cgs.teamChatMsgTimes[cgs.teamLastChatPos % chatHeight] > cg_teamChatTime.integer) {
             cgs.teamLastChatPos++;
         }
 
@@ -1463,7 +1463,7 @@ static void CG_DrawReward(void) {
                 cg.rewardShader[i] = cg.rewardShader[i + 1];
                 cg.rewardCount[i] = cg.rewardCount[i + 1];
             }
-            cg.rewardTime = cg.time;
+            cg.rewardTime = cg.realTime;
             cg.rewardStack--;
             color = CG_FadeColor(cg.rewardTime, REWARD_TIME);
             trap_S_StartLocalSound(cg.rewardSound[0], CHAN_ANNOUNCER);
@@ -1543,7 +1543,7 @@ Adds the current interpolate / extrapolate bar for this frame
 void CG_AddLagometerFrameInfo(void) {
     int         offset;
 
-    offset = cg.time - cg.latestSnapshotTime;
+    offset = cg.realTime - cg.latestSnapshotTime;
     lagometer.frameSamples[ lagometer.frameCount & (LAG_SAMPLES - 1) ] = offset;
     lagometer.frameCount++;
 }
@@ -1590,7 +1590,7 @@ static void CG_DrawDisconnect(void) {
     cmdNum = trap_GetCurrentCmdNumber() - CMD_BACKUP + 1;
     trap_GetUserCmd(cmdNum, &cmd);
     if (cmd.serverTime <= cg.snap->ps.commandTime
-            || cmd.serverTime > cg.time) {  // special check for map_restart
+            || cmd.serverTime > cg.realTime) {  // special check for map_restart
         return;
     }
 
@@ -1600,7 +1600,7 @@ static void CG_DrawDisconnect(void) {
     CG_DrawBigString(320 - w / 2, 100, s, 1.0F);
 
     // blink the icon
-    if ((cg.time >> 9) & 1) {
+    if ((cg.realTime >> 9) & 1) {
         return;
     }
 
@@ -1750,7 +1750,7 @@ void CG_CenterPrint(const char* str, int y, int charWidth) {
 
     Q_strncpyz(cg.centerPrint, str, sizeof(cg.centerPrint));
 
-    cg.centerPrintTime = cg.time;
+    cg.centerPrintTime = cg.realTime;
     cg.centerPrintY = y;
     cg.centerPrintCharWidth = charWidth;
 
@@ -1881,7 +1881,7 @@ static void CG_DrawCrosshair(void) {
     w = h = cg_crosshairSize.value;
 
     // pulse the size of the crosshair when picking up items
-    f = cg.time - cg.itemPickupBlendTime;
+    f = cg.realTime - cg.itemPickupBlendTime;
     if (f > 0 && f < ITEM_BLOB_TIME) {
         f /= ITEM_BLOB_TIME;
         w *= (1 + f);
@@ -1935,7 +1935,7 @@ static void CG_DrawCrosshair3D(void) {
     w = cg_crosshairSize.value;
 
     // pulse the size of the crosshair when picking up items
-    f = cg.time - cg.itemPickupBlendTime;
+    f = cg.realTime - cg.itemPickupBlendTime;
     if (f > 0 && f < ITEM_BLOB_TIME) {
         f /= ITEM_BLOB_TIME;
         w *= (1 + f);
@@ -2011,7 +2011,7 @@ static void CG_ScanForCrosshairEntity(void) {
 
     // update the fade timer
     cg.crosshairClientNum = trace.entityNum;
-    cg.crosshairClientTime = cg.time;
+    cg.crosshairClientTime = cg.realTime;
 }
 
 
@@ -2225,7 +2225,7 @@ static void CG_DrawIntermission(void) {
         return;
     }
 #endif
-    cg.scoreFadeTime = cg.time;
+    cg.scoreFadeTime = cg.realTime;
     cg.scoreBoardShowing = CG_DrawScoreboard();
 }
 
@@ -2485,6 +2485,71 @@ static void CG_DrawWarmup(void) {
 #endif
 }
 
+/*
+=================
+CG_DrawTimeout
+=================
+*/
+static void CG_DrawTimeout(void) {
+    int         w;
+    int         sec;
+    int         cw;
+    const char*  s;
+
+    if (!cg.timeout) {
+        return;
+    }
+
+    s = va("%s called a timeout", cg.timeoutName);
+    w = CG_DrawStrlen(s);
+    if (w > 640 / GIANT_WIDTH) {
+        cw = 640 / w;
+    } else {
+        cw = GIANT_WIDTH;
+    }
+    CG_DrawStringExt(320 - w * cw / 2, 20, s, colorWhite,
+                        qfalse, qtrue, cw, (int)(cw * 1.5f), 0);
+
+    sec = (cg.timeoutEnd-cg.realTime)/1000;
+
+    s = va("Timeout ends in: %i", sec + 1);
+    if (sec != cg.warmupCount) {
+        cg.warmupCount = sec;
+        switch (sec) {
+            case 0:
+                trap_S_StartLocalSound(cgs.media.count1Sound, CHAN_ANNOUNCER);
+                break;
+            case 1:
+                trap_S_StartLocalSound(cgs.media.count2Sound, CHAN_ANNOUNCER);
+                break;
+            case 2:
+                trap_S_StartLocalSound(cgs.media.count3Sound, CHAN_ANNOUNCER);
+                break;
+            default:
+                break;
+        }
+    }
+
+    switch (cg.warmupCount) {
+        case 0:
+            cw = 28;
+            break;
+        case 1:
+            cw = 24;
+            break;
+        case 2:
+            cw = 20;
+            break;
+        default:
+            cw = 16;
+            break;
+    }
+
+    w = CG_DrawStrlen(s);
+    CG_DrawStringExt(320 - w * cw / 2, 70, s, colorWhite,
+                     qfalse, qtrue, cw, (int)(cw * 1.5), 0);
+}
+
 //==================================================================================
 #ifdef MISSIONPACK
 /*
@@ -2494,7 +2559,7 @@ CG_DrawTimedMenus
 */
 void CG_DrawTimedMenus(void) {
     if (cg.voiceTime) {
-        int t = cg.time - cg.voiceTime;
+        int t = cg.realTime - cg.voiceTime;
         if (t > 2500) {
             Menus_CloseByName("voiceMenu");
             trap_Cvar_Set("cl_conXOffset", "0");
@@ -2598,6 +2663,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame) {
 
     if (!CG_DrawFollow()) {
         CG_DrawWarmup();
+        CG_DrawTimeout();
     }
 
     // don't draw center string if scoreboard is up

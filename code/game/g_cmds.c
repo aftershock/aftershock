@@ -1569,6 +1569,50 @@ void Cmd_Stats_f(gentity_t* ent) {
     */
 }
 
+void Cmd_Timeout_f(gentity_t* ent) {
+    if (level.warmupTime != 0) {
+        trap_SendServerCommand(ent - g_entities, "print \"Timeout not allowed during warmup\n\"");
+        return;
+    }
+    if (level.timeout) {
+        trap_SendServerCommand(ent - g_entities, "print \"Timeout already in progress\n\"");
+        return;
+    }
+    if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+        trap_SendServerCommand(ent - g_entities, "print \"Spectators are not allowed to call timeouts\n\"");
+        return;
+    }
+    if (g_timeouts.integer == 0) {
+        trap_SendServerCommand(ent - g_entities, "print \"Timeouts not allowed on this server\n\"");
+        return;
+    }
+    if (ent->client->sess.sessionTeam == TEAM_BLUE && level.timeoutsBlue >= g_teamTimeouts.integer) {
+        trap_SendServerCommand(ent - g_entities, "print \"Blue team has no timeouts left\n\"");
+        return;
+    }
+    if (ent->client->sess.sessionTeam == TEAM_RED && level.timeoutsRed >= g_teamTimeouts.integer) {
+        trap_SendServerCommand(ent - g_entities, "print \"Red team has no timeouts left\n\"");
+        return;
+    }
+    if (ent->client->timeouts >= g_timeouts.integer) {
+        trap_SendServerCommand(ent - g_entities, "print \"You have no timeouts left\n\"");
+        return;
+    }
+    level.timeoutAdd += g_timeoutTime.integer*1000;
+    level.timeoutEnd = level.realTime + g_timeoutTime.integer*1000;
+    level.timeout = qtrue;
+
+    if (ent->client->sess.sessionTeam == TEAM_BLUE) {
+        level.timeoutsBlue++;
+    }
+    else if (ent->client->sess.sessionTeam == TEAM_RED) {
+        level.timeoutsRed++;
+    }
+    ent->client->timeouts++;
+
+    trap_SendServerCommand(-1, va("timeout %s %i %i", ent->client->pers.netname, level.timeoutEnd, level.timeoutAdd));
+}
+
 /*
 =================
 ClientCommand
@@ -1677,6 +1721,8 @@ void ClientCommand(int clientNum) {
         Cmd_SetViewpos_f(ent);
     else if (Q_stricmp(cmd, "stats") == 0)
         Cmd_Stats_f(ent);
+    else if (Q_stricmp(cmd, "timeout") == 0)
+        Cmd_Timeout_f(ent);
     else
         trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

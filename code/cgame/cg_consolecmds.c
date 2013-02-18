@@ -111,7 +111,7 @@ static void CG_ScoresDown_f(void) {
 static void CG_ScoresUp_f(void) {
     if (cg.showScores) {
         cg.showScores = qfalse;
-        cg.scoreFadeTime = cg.time;
+        cg.scoreFadeTime = cg.realTime;
     }
 }
 
@@ -580,4 +580,5 @@ void CG_InitConsoleCommands(void) {
     trap_AddCommand("stats");
     trap_AddCommand("teamtask");
     trap_AddCommand("loaddefered");     // spelled wrong, but not changing for demo
+    trap_AddCommand("timeout");
 }
