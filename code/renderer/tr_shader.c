@@ -1302,6 +1302,16 @@ static qboolean ParseShader(char** text) {
             shader.noPicMip = qtrue;
             continue;
         }
+        else if (!Q_stricmp(token, "nomip")) {
+            token = COM_ParseExt(text, qfalse);
+            if (token[0]) {
+                if (atoi(token) & r_nomip->integer) {
+                    shader.noPicMip = qtrue;
+                    shader.noMipMaps = qtrue;
+                }
+            }
+            continue;
+        }
         // polygonOffset
         else if (!Q_stricmp(token, "polygonOffset")) {
             shader.polygonOffset = qtrue;
