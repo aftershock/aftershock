@@ -1192,7 +1192,7 @@ extern  vmCvar_t        cg_recordSPDemo;
 extern  vmCvar_t        cg_recordSPDemoName;
 extern  vmCvar_t        cg_obeliskRespawnDelay;
 #endif
-
+extern  vmCvar_t        cg_itemFx;
 //
 // cg_main.c
 //
