@@ -366,7 +366,24 @@ void RespawnItem(gentity_t* ent) {
 
     ent->r.contents = CONTENTS_TRIGGER;
     ent->s.eFlags &= ~EF_NODRAW;
-    ent->r.svFlags &= ~SVF_NOCLIENT;
+    if (!g_respawnTimer.integer) {
+        ent->r.svFlags &= ~SVF_NOCLIENT;
+    } else {
+        int i;
+
+        ent->r.svFlags &= ~SVF_CLIENTMASKREAL;
+        ent->r.svFlags &= ~SVF_BROADCAST;
+        ent->r.svFlags |= SVF_BROADCASTCLIENTMASKREAL;
+        ent->r.singleClient = 0;
+        for (i=0; i < MAX_CLIENTS; i++) {
+            if (!g_entities[i].inuse) {
+                continue;
+            }
+            if (g_entities[i].client->sess.sessionTeam == TEAM_SPECTATOR) {
+                ent->r.singleClient |= (1 << i);
+            }
+        }
+    }
     trap_LinkEntity(ent);
 
     if (ent->item->giType == IT_POWERUP) {
@@ -526,7 +543,22 @@ void Touch_Item(gentity_t* ent, gentity_t* other, trace_t* trace) {
     // picked up items still stay around, they just don't
     // draw anything.  This allows respawnable items
     // to be placed on movers.
-    ent->r.svFlags |= SVF_NOCLIENT;
+    if (!g_respawnTimer.integer) {
+        ent->r.svFlags |= SVF_NOCLIENT;
+    } else {
+        int i;
+        ent->r.svFlags |= SVF_CLIENTMASKREAL;
+        ent->r.svFlags |= SVF_BROADCAST;
+        ent->r.singleClient = 0;
+        for (i=0; i < MAX_CLIENTS; i++) {
+            if (!g_entities[i].inuse) {
+                continue;
+            }
+            if (g_entities[i].client->sess.sessionTeam == TEAM_SPECTATOR) {
+                ent->r.singleClient |= (1 << i);
+            }
+        }
+    }
     ent->s.eFlags |= EF_NODRAW;
     ent->r.contents = 0;
 
@@ -541,6 +573,7 @@ void Touch_Item(gentity_t* ent, gentity_t* other, trace_t* trace) {
         ent->nextthink = level.time + respawn * 1000;
         ent->think = RespawnItem;
     }
+    ent->s.time = ent->nextthink;
     trap_LinkEntity(ent);
 }
 

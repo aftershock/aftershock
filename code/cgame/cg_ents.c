@@ -233,6 +233,8 @@ static void CG_Item(centity_t* cent) {
     weaponInfo_t*    wi;
 
     es = &cent->currentState;
+    if( es->time - cg.time > 0)
+        CG_Printf("%s: %i\n", bg_itemlist[ es->modelindex ].pickup_name, es->time - cg.time);
     if (es->modelindex >= bg_numItems) {
         CG_Error("Bad item index %i on entity", es->modelindex);
     }

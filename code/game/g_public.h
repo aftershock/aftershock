@@ -46,6 +46,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // lagging clients
 #define SVF_CAPSULE             0x00000400  // use capsule for collision detection instead of bbox
 #define SVF_NOTSINGLECLIENT     0x00000800  // send entity to everyone but one client
+#define SVF_BROADCASTCLIENTMASK 0x00001000  // send entity to list of clients
+#define SVF_CLIENTMASKREAL      0x00002000  // same as SVF_CLIENTMASK, but with the real clientnumber(not the one in playerstate_t)
+#define SVF_BROADCASTCLIENTMASKREAL 0x00004000
 // (entityShared_t->singleClient)
 
 
