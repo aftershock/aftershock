@@ -184,6 +184,7 @@ vmCvar_t    cg_oldRocket;
 vmCvar_t    cg_oldPlasma;
 vmCvar_t    cg_trueLightning;
 vmCvar_t    cg_noKick;
+vmCvar_t    cg_weaponBobbing;
 
 #ifdef MISSIONPACK
 vmCvar_t    cg_redTeamName;
@@ -321,6 +322,7 @@ static cvarTable_t cvarTable[] = {
     { &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
     { &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
     { &cg_noKick, "cg_noKick", "0", CVAR_ARCHIVE},
+    { &cg_weaponBobbing, "cg_weaponBobbing", "1", CVAR_ARCHIVE},
     //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
     { &cg_itemFx, "cg_itemFx", "7", CVAR_ARCHIVE}
 };
