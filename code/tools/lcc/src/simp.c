@@ -408,8 +408,8 @@ Tree simplify(int op, Type ty, Tree l, Tree r) {
             commute(r, l);
             zerofield(EQ, U, u);
             break;
-        case GE+F: cfoldcnst(F, d,>=); break;
-        case GE+I: cfoldcnst(I, i,>=); break;
+        case GE+F: cfoldcnst(F, d, >=); break;
+        case GE+I: cfoldcnst(I, i, >=); break;
         case GE+U:
             geu(l, r, 1); /* l >= 0 => (l,1) */
             cfoldcnst(U, u, >=);
@@ -570,7 +570,7 @@ Tree simplify(int op, Type ty, Tree l, Tree r) {
                 return simplify(SUB, ty,
                                 simplify(SUB, ty, l, r->kids[1]), r->kids[0]);
             break;
-        default:assert(0);
+        default: assert(0);
     }
     return tree(op, ty, l, r);
 }

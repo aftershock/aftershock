@@ -452,7 +452,7 @@ char** Sys_ListFiles(const char* directory, const char* extension, char* filter,
     }
 
     do {
-        if ((!wantsubs && flag ^(findinfo.attrib & _A_SUBDIR)) || (wantsubs && findinfo.attrib & _A_SUBDIR)) {
+        if ((!wantsubs && flag ^ (findinfo.attrib & _A_SUBDIR)) || (wantsubs && findinfo.attrib & _A_SUBDIR)) {
             if (nfiles == MAX_FOUND_FILES - 1) {
                 break;
             }
@@ -587,11 +587,11 @@ dialogResult_t Sys_Dialog(dialogType_t type, const char* message, const char* ti
 
     switch (type) {
         default:
-        case DT_INFO:      uType = MB_ICONINFORMATION|MB_OK; break;
-        case DT_WARNING:   uType = MB_ICONWARNING|MB_OK; break;
-        case DT_ERROR:     uType = MB_ICONERROR|MB_OK; break;
-        case DT_YES_NO:    uType = MB_ICONQUESTION|MB_YESNO; break;
-        case DT_OK_CANCEL: uType = MB_ICONWARNING|MB_OKCANCEL; break;
+        case DT_INFO:      uType = MB_ICONINFORMATION | MB_OK; break;
+        case DT_WARNING:   uType = MB_ICONWARNING | MB_OK; break;
+        case DT_ERROR:     uType = MB_ICONERROR | MB_OK; break;
+        case DT_YES_NO:    uType = MB_ICONQUESTION | MB_YESNO; break;
+        case DT_OK_CANCEL: uType = MB_ICONWARNING | MB_OKCANCEL; break;
     }
 
     switch (MessageBox(NULL, message, title, uType)) {

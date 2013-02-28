@@ -441,7 +441,7 @@ void RB_BeginDrawingView(void) {
         // FIXME: HUGE HACK: render to the screen fbo if we've already postprocessed the frame and aren't drawing more world
         // drawing more world check is in case of double renders, such as skyportals
         if (backEnd.viewParms.targetFbo == NULL) {
-            if (backEnd.framePostProcessed) {
+            if (backEnd.framePostProcessed && (backEnd.refdef.rdflags & RDF_NOWORLDMODEL)) {
                 FBO_Bind(tr.screenScratchFbo);
             } else {
                 FBO_Bind(tr.renderFbo);
@@ -1357,7 +1357,7 @@ const void*  RB_DrawSurfs(const void* data) {
     }
 
     //if (glRefConfig.framebufferObject)
-    //    FBO_Bind(NULL);
+    //FBO_Bind(NULL);
 
     return (const void*)(cmd + 1);
 }
@@ -1486,13 +1486,13 @@ const void* RB_ClearDepth(const void* data) {
         RB_ShowImages();
 
     if (glRefConfig.framebufferObject) {
-
-        if (backEnd.framePostProcessed && (backEnd.refdef.rdflags & RDF_NOWORLDMODEL)) {
+        if (backEnd.framePostProcessed) {
             FBO_Bind(tr.screenScratchFbo);
         } else {
             FBO_Bind(tr.renderFbo);
         }
     }
+
     qglClear(GL_DEPTH_BUFFER_BIT);
 
     // if we're doing MSAA, clear the depth texture for the resolve buffer

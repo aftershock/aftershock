@@ -125,8 +125,8 @@ clientConnection_t  clc;
 clientStatic_t      cls;
 vm_t*                cgvm;
 
-char                            cl_oldGame[MAX_QPATH];
-qboolean                        cl_oldGameSet;
+char                cl_oldGame[MAX_QPATH];
+qboolean            cl_oldGameSet;
 
 // Structure containing functions exported from refresh DLL
 refexport_t re;
@@ -1310,7 +1310,7 @@ static void CL_UpdateGUID(const char* prefix, int prefix_len) {
 }
 
 static void CL_OldGame(void) {
-    if(cl_oldGameSet) {
+    if (cl_oldGameSet) {
         // change back to previous fs_game
         cl_oldGameSet = qfalse;
         Cvar_Set2("fs_game", cl_oldGame, qtrue);

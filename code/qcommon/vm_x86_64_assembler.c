@@ -247,7 +247,7 @@ static unsigned hashkey(const char* string, unsigned len) {
     for (i = 0; i < len && string[i] != '\0'; ++i) {
         hash += string[i] * (119 + i);
     }
-    hash = (hash ^(hash >> 10) ^(hash >> 20));
+    hash = (hash ^ (hash >> 10) ^ (hash >> 20));
     return hash;
 }
 

@@ -299,7 +299,7 @@ initial_setup(j_compress_ptr cinfo, boolean transcode_only)
          */
         ssize = 1;
 #ifdef DCT_SCALING_SUPPORTED
-        while (cinfo->min_DCT_h_scaled_size* ssize <=
+        while (cinfo->min_DCT_h_scaled_size * ssize <=
                 (cinfo->do_fancy_downsampling ? DCTSIZE : DCTSIZE / 2) &&
                 (cinfo->max_h_samp_factor % (compptr->h_samp_factor * ssize * 2)) == 0) {
             ssize = ssize * 2;
@@ -308,7 +308,7 @@ initial_setup(j_compress_ptr cinfo, boolean transcode_only)
         compptr->DCT_h_scaled_size = cinfo->min_DCT_h_scaled_size * ssize;
         ssize = 1;
 #ifdef DCT_SCALING_SUPPORTED
-        while (cinfo->min_DCT_v_scaled_size* ssize <=
+        while (cinfo->min_DCT_v_scaled_size * ssize <=
                 (cinfo->do_fancy_downsampling ? DCTSIZE : DCTSIZE / 2) &&
                 (cinfo->max_v_samp_factor % (compptr->v_samp_factor * ssize * 2)) == 0) {
             ssize = ssize * 2;

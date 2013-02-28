@@ -111,14 +111,14 @@ jpeg_calc_output_dimensions(j_decompress_ptr cinfo)
     for (ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
             ci++, compptr++) {
         int ssize = 1;
-        while (cinfo->min_DCT_h_scaled_size* ssize <=
+        while (cinfo->min_DCT_h_scaled_size * ssize <=
                 (cinfo->do_fancy_upsampling ? DCTSIZE : DCTSIZE / 2) &&
                 (cinfo->max_h_samp_factor % (compptr->h_samp_factor * ssize * 2)) == 0) {
             ssize = ssize * 2;
         }
         compptr->DCT_h_scaled_size = cinfo->min_DCT_h_scaled_size * ssize;
         ssize = 1;
-        while (cinfo->min_DCT_v_scaled_size* ssize <=
+        while (cinfo->min_DCT_v_scaled_size * ssize <=
                 (cinfo->do_fancy_upsampling ? DCTSIZE : DCTSIZE / 2) &&
                 (cinfo->max_v_samp_factor % (compptr->v_samp_factor * ssize * 2)) == 0) {
             ssize = ssize * 2;

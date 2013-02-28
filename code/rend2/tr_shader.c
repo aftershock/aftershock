@@ -60,7 +60,7 @@ static long generateHashValue(const char* fname, const int size) {
         hash += (long)(letter) * (i + 119);
         i++;
     }
-    hash = (hash ^(hash >> 10) ^(hash >> 20));
+    hash = (hash ^ (hash >> 10) ^ (hash >> 20));
     hash &= (size - 1);
     return hash;
 }

@@ -1004,7 +1004,7 @@ static void SV_ListBans_f(void) {
     serverBan_t* ban;
 
     // make sure server is running
-    if (!com_sv_running->integer ){
+    if (!com_sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }

@@ -966,9 +966,9 @@ int BotAI(int client, float thinktime) {
         RemoveColorEscapeSequences(args);
 
         if (!Q_stricmp(buf, "cp "))
-            { /*CenterPrintf*/ }
+        { /*CenterPrintf*/ }
         else if (!Q_stricmp(buf, "cs"))
-            { /*ConfigStringModified*/ }
+        { /*ConfigStringModified*/ }
         else if (!Q_stricmp(buf, "print")) {
             //remove first and last quote from the chat message
             memmove(args, args + 1, strlen(args));
@@ -995,9 +995,9 @@ int BotAI(int client, float thinktime) {
         }
 #endif
         else if (!Q_stricmp(buf, "scores"))
-            { /*FIXME: parse scores?*/ }
+        { /*FIXME: parse scores?*/ }
         else if (!Q_stricmp(buf, "clientLevelShot"))
-            { /*ignore*/ }
+        { /*ignore*/ }
     }
     //add the delta angles to the bot's current view angles
     for (j = 0; j < 3; j++) {

@@ -392,7 +392,7 @@ static long SVC_HashForAddress(netadr_t address) {
         hash += (long)(ip[ i ]) * (i + 119);
     }
 
-    hash = (hash ^(hash >> 10) ^(hash >> 20));
+    hash = (hash ^ (hash >> 10) ^ (hash >> 20));
     hash &= (MAX_HASHES - 1);
 
     return hash;

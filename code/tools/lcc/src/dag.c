@@ -53,7 +53,7 @@ static Node node(int op, Node l, Node r, Symbol sym) {
     int i;
     struct dag* p;
 
-    i = (opindex(op) ^((unsigned long)sym >> 2)) & (NELEMS(buckets) - 1);
+    i = (opindex(op) ^ ((unsigned long)sym >> 2)) & (NELEMS(buckets) - 1);
     for (p = buckets[i]; p; p = p->hlink)
         if (p->node.op      == op && p->node.syms[0] == sym
                 &&  p->node.kids[0] == l  && p->node.kids[1] == r)
@@ -400,7 +400,7 @@ Node listnodes(Tree tp, int tlab, int flab) {
                 addlocal(tp->u.sym);
             p = node(tp->op + sizeop(voidptype->size), NULL, NULL, tp->u.sym);
         } break;
-        default:assert(0);
+        default: assert(0);
     }
     tp->node = p;
     return p;

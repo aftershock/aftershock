@@ -356,8 +356,8 @@ typedef struct {
 
 extern  clientStatic_t      cls;
 
-extern  char            cl_oldGame[MAX_QPATH];
-extern  qboolean        cl_oldGameSet;
+extern  char        cl_oldGame[MAX_QPATH];
+extern  qboolean    cl_oldGameSet;
 
 //=============================================================================
 

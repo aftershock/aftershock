@@ -297,7 +297,7 @@ static void hashtable_stats(hashtable_t* H) {
     nodes = 0;
     for (i = 0; i < H->buckets; i++) {
         if (H->table[i] == 0)
-            { empties++; continue; }
+        { empties++; continue; }
         for (hc = H->table[i], len = 0; hc; hc = hc->next, len++);
         if (len > longest) { longest = len; }
         nodes += len;

@@ -126,7 +126,7 @@ local void make_crc_table() {
         for (n = 0; n < 256; n++) {
             c = (unsigned long)n;
             for (k = 0; k < 8; k++)
-                c = c & 1 ? poly ^(c >> 1) : c >> 1;
+                c = c & 1 ? poly ^ (c >> 1) : c >> 1;
             crc_table[0][n] = c;
         }
 
@@ -137,7 +137,7 @@ local void make_crc_table() {
             c = crc_table[0][n];
             crc_table[4][n] = REV(c);
             for (k = 1; k < 4; k++) {
-                c = crc_table[0][c & 0xff] ^(c >> 8);
+                c = crc_table[0][c & 0xff] ^ (c >> 8);
                 crc_table[k][n] = c;
                 crc_table[k + 4][n] = REV(c);
             }
@@ -267,7 +267,7 @@ unsigned len;
     c = (u4)crc;
     c = ~c;
     while (len && ((ptrdiff_t)buf & 3)) {
-        c = crc_table[0][(c ^ *buf++) & 0xff] ^(c >> 8);
+        c = crc_table[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
         len--;
     }
 
@@ -283,7 +283,7 @@ unsigned len;
     buf = (const unsigned char FAR*)buf4;
 
     if (len) do {
-            c = crc_table[0][(c ^ *buf++) & 0xff] ^(c >> 8);
+            c = crc_table[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
         } while (--len);
     c = ~c;
     return (unsigned long)c;
@@ -307,7 +307,7 @@ unsigned len;
     c = REV((u4)crc);
     c = ~c;
     while (len && ((ptrdiff_t)buf & 3)) {
-        c = crc_table[4][(c >> 24) ^ *buf++] ^(c << 8);
+        c = crc_table[4][(c >> 24) ^ *buf++] ^ (c << 8);
         len--;
     }
 
@@ -325,7 +325,7 @@ unsigned len;
     buf = (const unsigned char FAR*)buf4;
 
     if (len) do {
-            c = crc_table[4][(c >> 24) ^ *buf++] ^(c << 8);
+            c = crc_table[4][(c >> 24) ^ *buf++] ^ (c << 8);
         } while (--len);
     c = ~c;
     return (unsigned long)(REV(c));

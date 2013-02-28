@@ -252,7 +252,7 @@ static  void R_LoadLightmaps(lump_t* l, lump_t* surfs) {
         tr.fatLightmapStep = tr.fatLightmapSize / tr.lightmapSize;
 
         // at most MAX_LIGHTMAP_PAGES
-        while (tr.fatLightmapStep* tr.fatLightmapStep* MAX_LIGHTMAP_PAGES < numLightmaps && tr.fatLightmapSize != glConfig.maxTextureSize) {
+        while (tr.fatLightmapStep * tr.fatLightmapStep * MAX_LIGHTMAP_PAGES < numLightmaps && tr.fatLightmapSize != glConfig.maxTextureSize) {
             tr.fatLightmapSize <<= 1;
             tr.fatLightmapStep = tr.fatLightmapSize / tr.lightmapSize;
         }

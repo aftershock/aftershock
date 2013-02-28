@@ -1388,7 +1388,7 @@ static void PM_Footsteps(void) {
     pm->ps->bobCycle = (int)(old + bobmove * pml.msec) & 255;
 
     // if we just crossed a cycle boundary, play an apropriate footstep event
-    if (((old + 64) ^(pm->ps->bobCycle + 64)) & 128) {
+    if (((old + 64) ^ (pm->ps->bobCycle + 64)) & 128) {
         if (pm->waterlevel == 0) {
             // on ground will only play sounds if running
             if (footstep && !pm->noFootsteps) {

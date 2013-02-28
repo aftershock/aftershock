@@ -871,8 +871,7 @@ void R_PrintLongString(const char* string) {
     int size = strlen(string);
 
     p = string;
-    while(size > 0)
-    {
+    while (size > 0) {
         Q_strncpyz(buffer, p, sizeof(buffer));
         ri.Printf(PRINT_ALL, "%s", buffer);
         p += 1023;

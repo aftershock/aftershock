@@ -835,7 +835,7 @@ the bits are allocated as follows:
 17-30 : sorted shader index
 */
 #define QSORT_FOGNUM_SHIFT  2
-#define QSORT_REFENTITYNUM_SHIFT        7
+#define QSORT_REFENTITYNUM_SHIFT    7
 #define QSORT_SHADERNUM_SHIFT   (QSORT_REFENTITYNUM_SHIFT+REFENTITYNUM_BITS)
 #if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 32
 #error "Need to update sorting, too many bits."

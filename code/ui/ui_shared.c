@@ -4242,7 +4242,7 @@ int KeywordHash_Key(char* keyword) {
         else
             hash += keyword[i] * (119 + i);
     }
-    hash = (hash ^(hash >> 10) ^(hash >> 20)) & (KEYWORDHASH_SIZE - 1);
+    hash = (hash ^ (hash >> 10) ^ (hash >> 20)) & (KEYWORDHASH_SIZE - 1);
     return hash;
 }
 

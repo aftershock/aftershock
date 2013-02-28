@@ -841,42 +841,42 @@ void R_RotateForEntity(const trRefEntity_t* ent, const viewParms_t* viewParms,
     float   axisLength;
 
     if (ent->e.reType != RT_MODEL) {
-        *or = viewParms->world;
+        * or = viewParms->world;
         return;
     }
 
-    VectorCopy(ent->e.origin, or->origin);
+    VectorCopy(ent->e.origin, or ->origin);
 
-    VectorCopy(ent->e.axis[0], or->axis[0]);
-    VectorCopy(ent->e.axis[1], or->axis[1]);
-    VectorCopy(ent->e.axis[2], or->axis[2]);
+    VectorCopy(ent->e.axis[0], or ->axis[0]);
+    VectorCopy(ent->e.axis[1], or ->axis[1]);
+    VectorCopy(ent->e.axis[2], or ->axis[2]);
 
-    glMatrix[0] = or->axis[0][0];
-    glMatrix[4] = or->axis[1][0];
-    glMatrix[8] = or->axis[2][0];
-    glMatrix[12] = or->origin[0];
+    glMatrix[0] = or ->axis[0][0];
+    glMatrix[4] = or ->axis[1][0];
+    glMatrix[8] = or ->axis[2][0];
+    glMatrix[12] = or ->origin[0];
 
-    glMatrix[1] = or->axis[0][1];
-    glMatrix[5] = or->axis[1][1];
-    glMatrix[9] = or->axis[2][1];
-    glMatrix[13] = or->origin[1];
+    glMatrix[1] = or ->axis[0][1];
+    glMatrix[5] = or ->axis[1][1];
+    glMatrix[9] = or ->axis[2][1];
+    glMatrix[13] = or ->origin[1];
 
-    glMatrix[2] = or->axis[0][2];
-    glMatrix[6] = or->axis[1][2];
-    glMatrix[10] = or->axis[2][2];
-    glMatrix[14] = or->origin[2];
+    glMatrix[2] = or ->axis[0][2];
+    glMatrix[6] = or ->axis[1][2];
+    glMatrix[10] = or ->axis[2][2];
+    glMatrix[14] = or ->origin[2];
 
     glMatrix[3] = 0;
     glMatrix[7] = 0;
     glMatrix[11] = 0;
     glMatrix[15] = 1;
 
-    Matrix16Copy(glMatrix, or->transformMatrix);
-    myGlMultMatrix(glMatrix, viewParms->world.modelMatrix, or->modelMatrix);
+    Matrix16Copy(glMatrix, or ->transformMatrix);
+    myGlMultMatrix(glMatrix, viewParms->world.modelMatrix, or ->modelMatrix);
 
     // calculate the viewer origin in the model's space
     // needed for fog, specular, and environment mapping
-    VectorSubtract(viewParms->or.origin, or->origin, delta);
+    VectorSubtract(viewParms->or.origin, or ->origin, delta);
 
     // compensate for scale in the axes if necessary
     if (ent->e.nonNormalizedAxes) {
@@ -890,9 +890,9 @@ void R_RotateForEntity(const trRefEntity_t* ent, const viewParms_t* viewParms,
         axisLength = 1.0f;
     }
 
-    or->viewOrigin[0] = DotProduct(delta, or->axis[0]) * axisLength;
-    or->viewOrigin[1] = DotProduct(delta, or->axis[1]) * axisLength;
-    or->viewOrigin[2] = DotProduct(delta, or->axis[2]) * axisLength;
+    or ->viewOrigin[0] = DotProduct(delta, or ->axis[0]) * axisLength;
+    or ->viewOrigin[1] = DotProduct(delta, or ->axis[1]) * axisLength;
+    or ->viewOrigin[2] = DotProduct(delta, or ->axis[2]) * axisLength;
 }
 
 /*
@@ -1771,7 +1771,7 @@ void R_DecomposeSort(unsigned sort, int* entityNum, shader_t** shader,
     *fogNum = (sort >> QSORT_FOGNUM_SHIFT) & 31;
     *shader = tr.sortedShaders[(sort >> QSORT_SHADERNUM_SHIFT) & (MAX_SHADERS - 1) ];
     *entityNum = (sort >> QSORT_REFENTITYNUM_SHIFT) & REFENTITYNUM_MASK;
-    *pshadowMap = (sort >> QSORT_PSHADOW_SHIFT ) & 1;
+    *pshadowMap = (sort >> QSORT_PSHADOW_SHIFT) & 1;
     *dlightMap = sort & 1;
 }
 

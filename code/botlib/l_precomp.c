@@ -515,7 +515,7 @@ int PC_NameHash(char* name) {
         //hash += (name[i] << 7) + i;
         //hash += (name[i] << (i&15));
     } //end while
-    hash = (hash ^(hash >> 10) ^(hash >> 20)) & (DEFINEHASHSIZE - 1);
+    hash = (hash ^ (hash >> 10) ^ (hash >> 20)) & (DEFINEHASHSIZE - 1);
     return hash;
 } //end of the function PC_NameHash
 //============================================================================

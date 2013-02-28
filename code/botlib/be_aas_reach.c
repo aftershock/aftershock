@@ -1030,7 +1030,7 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(int area1num, int area2
             //if we can swim in the first area
             if (area1swim) {
                 //face plane must be more or less horizontal
-                plane = &aasworld.planes[groundface1->planenum ^(!faceside1)];
+                plane = &aasworld.planes[groundface1->planenum ^ (!faceside1)];
                 if (DotProduct(plane->normal, invgravity) < 0.7) continue;
             } //end if
             else {
@@ -2255,8 +2255,8 @@ int AAS_Reachability_Ladder(int area1num, int area2num) {
         VectorCopy(area1point, area2point);
         //
         //if the face plane in area 1 is pretty much vertical
-        plane1 = &aasworld.planes[ladderface1->planenum ^(ladderface1num < 0)];
-        plane2 = &aasworld.planes[ladderface2->planenum ^(ladderface2num < 0)];
+        plane1 = &aasworld.planes[ladderface1->planenum ^ (ladderface1num < 0)];
+        plane2 = &aasworld.planes[ladderface2->planenum ^ (ladderface2num < 0)];
         //
         //get the points really into the areas
         VectorSubtract(v2, v1, sharededgevec);

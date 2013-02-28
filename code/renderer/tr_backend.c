@@ -125,15 +125,12 @@ void GL_Cull(int cullType) {
 
     if (cullType == CT_TWO_SIDED) {
         qglDisable(GL_CULL_FACE);
-    }
-    else
-    {
+    } else {
         qboolean cullFront;
         qglEnable(GL_CULL_FACE);
 
         cullFront = (cullType == CT_FRONT_SIDED);
-        if (backEnd.viewParms.isMirror)
-        {
+        if (backEnd.viewParms.isMirror) {
             cullFront = !cullFront;
         }
 

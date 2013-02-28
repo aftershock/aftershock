@@ -375,7 +375,7 @@ static long FS_HashFileName(const char* fname, int hashSize) {
         hash += (long)(letter) * (i + 119);
         i++;
     }
-    hash = (hash ^(hash >> 10) ^(hash >> 20));
+    hash = (hash ^ (hash >> 10) ^ (hash >> 20));
     hash &= (hashSize - 1);
     return hash;
 }
@@ -2998,8 +2998,8 @@ NOTE TTimo: the reordering that happens here is not reflected in the cvars (\cva
 static void FS_ReorderPurePaks(void) {
     searchpath_t* s;
     int i;
-    searchpath_t** p_insert_index; // for linked list reordering
-    searchpath_t** p_previous; // when doing the scan
+    searchpath_t** p_insert_index, // for linked list reordering
+                 **p_previous; // when doing the scan
 
     fs_reordered = qfalse;
 

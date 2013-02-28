@@ -398,10 +398,10 @@ void kf_work(
 
     switch (p) {
         case 2: kf_bfly2(Fout, fstride, st, m, N, m2); break;
-        case 3: for (i=0; i<N; i++) {Fout=Fout_beg+i*m2; kf_bfly3(Fout, fstride, st, m);} break;
+        case 3: for (i = 0; i < N; i++) {Fout = Fout_beg + i * m2; kf_bfly3(Fout, fstride, st, m);} break;
         case 4: kf_bfly4(Fout, fstride, st, m, N, m2); break;
-        case 5: for (i=0; i<N; i++) {Fout=Fout_beg+i*m2; kf_bfly5(Fout, fstride, st, m);} break;
-        default: for (i=0; i<N; i++) {Fout=Fout_beg+i*m2; kf_bfly_generic(Fout, fstride, st, m, p);} break;
+        case 5: for (i = 0; i < N; i++) {Fout = Fout_beg + i * m2; kf_bfly5(Fout, fstride, st, m);} break;
+        default: for (i = 0; i < N; i++) {Fout = Fout_beg + i * m2; kf_bfly_generic(Fout, fstride, st, m, p);} break;
     }
 #endif
 }

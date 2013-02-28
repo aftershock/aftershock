@@ -470,18 +470,16 @@ S_Base_HearingThroughEntity
 Also see S_AL_HearingThroughEntity
 =================
 */
-static qboolean S_Base_HearingThroughEntity(int entityNum, vec3_t origin)
-{
-    float distanceSq;
-    vec3_t sorigin;
+static qboolean S_Base_HearingThroughEntity(int entityNum, vec3_t origin) {
+    float   distanceSq;
+    vec3_t  sorigin;
 
     if (origin)
         VectorCopy(origin, sorigin);
     else
         VectorCopy(loopSounds[entityNum].origin, sorigin);
 
-    if (listener_number == entityNum)
-    {
+    if (listener_number == entityNum) {
         // FIXME: <tim@ngus.net> 28/02/06 This is an outrageous hack to detect
         // whether or not the player is rendering in third person or not. We can't
         // ask the renderer because the renderer has no notion of entities and we
@@ -489,15 +487,14 @@ static qboolean S_Base_HearingThroughEntity(int entityNum, vec3_t origin)
         // compatibility. I don't think there is any way around this, but I'll leave
         // the FIXME just in case anyone has a bright idea.
         distanceSq = DistanceSquared(
-                sorigin,
-                listener_origin );
+                         sorigin,
+                         listener_origin);
 
         if (distanceSq > THIRD_PERSON_THRESHOLD_SQ)
             return qfalse; //we're the player, but third person
         else
             return qtrue;  //we're the player
-    }
-    else
+    } else
         return qfalse; //not the player
 }
 
@@ -515,7 +512,7 @@ static void S_Base_StartSoundEx(vec3_t origin, int entityNum, int entchannel, sf
     sfx_t*       sfx;
     int i, oldest, chosen, time;
     int   inplay, allowed;
-    qboolean fullVolume;
+    qboolean    fullVolume;
 
     if (!s_soundStarted || s_soundMuted) {
         return;

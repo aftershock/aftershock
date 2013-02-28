@@ -832,7 +832,7 @@ nextInstruction2:
                 goto nextInstruction;
             case OP_BXOR:
                 opStackOfs--;
-                opStack[opStackOfs] = ((unsigned) r1) ^((unsigned) r0);
+                opStack[opStackOfs] = ((unsigned) r1) ^ ((unsigned) r0);
                 goto nextInstruction;
             case OP_BCOM:
                 opStack[opStackOfs] = ~((unsigned) r0);

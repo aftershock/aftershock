@@ -79,7 +79,7 @@ static node_t** get_ppnode(huff_t* huff) {
         return &(huff->nodePtrs[huff->blocPtrs++]);
     } else {
         tppnode = huff->freelist;
-        huff->freelist = (node_t**) * tppnode;
+        huff->freelist = (node_t**)*tppnode;
         return tppnode;
     }
 }

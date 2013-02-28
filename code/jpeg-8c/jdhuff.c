@@ -1438,35 +1438,35 @@ bad:
                 ci = compptr->DCT_v_scaled_size;
                 i = compptr->DCT_h_scaled_size;
                 switch (cinfo->lim_Se) {
-                    case(1*1-1):
+                    case (1*1-1):
                         entropy->coef_limit[blkn] = 1;
                         break;
-                    case(2*2-1):
+                    case (2*2-1):
                         if (ci <= 0 || ci > 2) ci = 2;
                         if (i <= 0 || i > 2) i = 2;
                         entropy->coef_limit[blkn] = 1 + jpeg_zigzag_order2[ci - 1][i - 1];
                         break;
-                    case(3*3-1):
+                    case (3*3-1):
                         if (ci <= 0 || ci > 3) ci = 3;
                         if (i <= 0 || i > 3) i = 3;
                         entropy->coef_limit[blkn] = 1 + jpeg_zigzag_order3[ci - 1][i - 1];
                         break;
-                    case(4*4-1):
+                    case (4*4-1):
                         if (ci <= 0 || ci > 4) ci = 4;
                         if (i <= 0 || i > 4) i = 4;
                         entropy->coef_limit[blkn] = 1 + jpeg_zigzag_order4[ci - 1][i - 1];
                         break;
-                    case(5*5-1):
+                    case (5*5-1):
                         if (ci <= 0 || ci > 5) ci = 5;
                         if (i <= 0 || i > 5) i = 5;
                         entropy->coef_limit[blkn] = 1 + jpeg_zigzag_order5[ci - 1][i - 1];
                         break;
-                    case(6*6-1):
+                    case (6*6-1):
                         if (ci <= 0 || ci > 6) ci = 6;
                         if (i <= 0 || i > 6) i = 6;
                         entropy->coef_limit[blkn] = 1 + jpeg_zigzag_order6[ci - 1][i - 1];
                         break;
-                    case(7*7-1):
+                    case (7*7-1):
                         if (ci <= 0 || ci > 7) ci = 7;
                         if (i <= 0 || i > 7) i = 7;
                         entropy->coef_limit[blkn] = 1 + jpeg_zigzag_order7[ci - 1][i - 1];

@@ -235,7 +235,7 @@ int MSG_ReadBits(msg_t* msg, int bits) {
     }
     if (sgn) {
         if (value & (1 << (bits - 1))) {
-            value |= -1 ^((1 << bits) - 1);
+            value |= -1 ^ ((1 << bits) - 1);
         }
     }
 
@@ -535,7 +535,7 @@ int MSG_HashKey(const char* string, int maxlen) {
         else
             hash += string[i] * (119 + i);
     }
-    hash = (hash ^(hash >> 10) ^(hash >> 20));
+    hash = (hash ^ (hash >> 10) ^ (hash >> 20));
     return hash;
 }
 
@@ -618,7 +618,7 @@ void MSG_WriteDeltaKey(msg_t* msg, int key, int oldV, int newV, int bits) {
 
 int MSG_ReadDeltaKey(msg_t* msg, int key, int oldV, int bits) {
     if (MSG_ReadBits(msg, 1)) {
-        return MSG_ReadBits(msg, bits) ^(key & kbitmask[bits]);
+        return MSG_ReadBits(msg, bits) ^ (key & kbitmask[bits]);
     }
     return oldV;
 }

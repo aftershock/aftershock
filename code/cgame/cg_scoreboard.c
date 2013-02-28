@@ -241,7 +241,7 @@ static int CG_TeamScoreboard(int y, team_t team, float fade, int maxClients, int
             continue;
         }
 
-        CG_DrawClientScore(y + lineHeight* count, score, color, fade, lineHeight == SB_NORMAL_HEIGHT);
+        CG_DrawClientScore(y + lineHeight * count, score, color, fade, lineHeight == SB_NORMAL_HEIGHT);
 
         count++;
     }

@@ -600,14 +600,14 @@ enum {
     GLS_SRCBLEND_ALPHA_SATURATE         = (1 << 8),
 
     GLS_SRCBLEND_BITS                   = GLS_SRCBLEND_ZERO
-    | GLS_SRCBLEND_ONE
-    | GLS_SRCBLEND_DST_COLOR
-    | GLS_SRCBLEND_ONE_MINUS_DST_COLOR
-    | GLS_SRCBLEND_SRC_ALPHA
-    | GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA
-    | GLS_SRCBLEND_DST_ALPHA
-    | GLS_SRCBLEND_ONE_MINUS_DST_ALPHA
-    | GLS_SRCBLEND_ALPHA_SATURATE,
+                                          | GLS_SRCBLEND_ONE
+                                          | GLS_SRCBLEND_DST_COLOR
+                                          | GLS_SRCBLEND_ONE_MINUS_DST_COLOR
+                                          | GLS_SRCBLEND_SRC_ALPHA
+                                          | GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA
+                                          | GLS_SRCBLEND_DST_ALPHA
+                                          | GLS_SRCBLEND_ONE_MINUS_DST_ALPHA
+                                          | GLS_SRCBLEND_ALPHA_SATURATE,
 
     GLS_DSTBLEND_ZERO                   = (1 << 9),
     GLS_DSTBLEND_ONE                    = (1 << 10),
@@ -619,13 +619,13 @@ enum {
     GLS_DSTBLEND_ONE_MINUS_DST_ALPHA    = (1 << 16),
 
     GLS_DSTBLEND_BITS                   = GLS_DSTBLEND_ZERO
-    | GLS_DSTBLEND_ONE
-    | GLS_DSTBLEND_SRC_COLOR
-    | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR
-    | GLS_DSTBLEND_SRC_ALPHA
-    | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA
-    | GLS_DSTBLEND_DST_ALPHA
-    | GLS_DSTBLEND_ONE_MINUS_DST_ALPHA,
+                                          | GLS_DSTBLEND_ONE
+                                          | GLS_DSTBLEND_SRC_COLOR
+                                          | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR
+                                          | GLS_DSTBLEND_SRC_ALPHA
+                                          | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA
+                                          | GLS_DSTBLEND_DST_ALPHA
+                                          | GLS_DSTBLEND_ONE_MINUS_DST_ALPHA,
 
     GLS_DEPTHMASK_TRUE                  = (1 << 17),
 
@@ -637,7 +637,7 @@ enum {
     GLS_DEPTHFUNC_EQUAL                 = (1 << 21),
 
     GLS_DEPTHFUNC_BITS                  = GLS_DEPTHFUNC_LESS
-    | GLS_DEPTHFUNC_EQUAL,
+                                          | GLS_DEPTHFUNC_EQUAL,
 
     GLS_ATEST_GT_0                      = (1 << 22),
     GLS_ATEST_LT_128                    = (1 << 23),
@@ -645,8 +645,8 @@ enum {
     //  GLS_ATEST_GE_CUSTOM                 = (1 << 25),
 
     GLS_ATEST_BITS                      = GLS_ATEST_GT_0
-    | GLS_ATEST_LT_128
-    | GLS_ATEST_GE_128,
+                                          | GLS_ATEST_LT_128
+                                          | GLS_ATEST_GE_128,
     //                                          | GLS_ATEST_GT_CUSTOM,
 
     GLS_REDMASK_FALSE                   = (1 << 26),
@@ -655,9 +655,9 @@ enum {
     GLS_ALPHAMASK_FALSE                 = (1 << 29),
 
     GLS_COLORMASK_BITS                  = GLS_REDMASK_FALSE
-    | GLS_GREENMASK_FALSE
-    | GLS_BLUEMASK_FALSE
-    | GLS_ALPHAMASK_FALSE,
+                                          | GLS_GREENMASK_FALSE
+                                          | GLS_BLUEMASK_FALSE
+                                          | GLS_ALPHAMASK_FALSE,
 
     GLS_STENCILTEST_ENABLE              = (1 << 30),
 
@@ -685,20 +685,20 @@ enum {
 
     ATTR_DEFAULT = ATTR_POSITION,
     ATTR_BITS = ATTR_POSITION |
-    ATTR_TEXCOORD |
-    ATTR_LIGHTCOORD |
-    ATTR_TANGENT |
-    ATTR_BITANGENT |
-    ATTR_NORMAL |
-    ATTR_COLOR |
-    ATTR_PAINTCOLOR |
-    ATTR_LIGHTDIRECTION |
-    ATTR_BONE_INDEXES |
-    ATTR_BONE_WEIGHTS |
-    ATTR_POSITION2 |
-    ATTR_TANGENT2 |
-    ATTR_BITANGENT2 |
-    ATTR_NORMAL2
+                ATTR_TEXCOORD |
+                ATTR_LIGHTCOORD |
+                ATTR_TANGENT |
+                ATTR_BITANGENT |
+                ATTR_NORMAL |
+                ATTR_COLOR |
+                ATTR_PAINTCOLOR |
+                ATTR_LIGHTDIRECTION |
+                ATTR_BONE_INDEXES |
+                ATTR_BONE_WEIGHTS |
+                ATTR_POSITION2 |
+                ATTR_TANGENT2 |
+                ATTR_BITANGENT2 |
+                ATTR_NORMAL2
 };
 
 enum {

@@ -541,12 +541,12 @@ get_dqt(j_decompress_ptr cinfo)
         }
 
         switch (count) {
-            case(2*2): natural_order = jpeg_natural_order2; break;
-            case(3*3): natural_order = jpeg_natural_order3; break;
-            case(4*4): natural_order = jpeg_natural_order4; break;
-            case(5*5): natural_order = jpeg_natural_order5; break;
-            case(6*6): natural_order = jpeg_natural_order6; break;
-            case(7*7): natural_order = jpeg_natural_order7; break;
+            case (2*2): natural_order = jpeg_natural_order2; break;
+            case (3*3): natural_order = jpeg_natural_order3; break;
+            case (4*4): natural_order = jpeg_natural_order4; break;
+            case (5*5): natural_order = jpeg_natural_order5; break;
+            case (6*6): natural_order = jpeg_natural_order6; break;
+            case (7*7): natural_order = jpeg_natural_order7; break;
             default:    natural_order = jpeg_natural_order;  break;
         }
 
