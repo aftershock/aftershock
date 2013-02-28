@@ -97,7 +97,7 @@ void CG_DamageFeedback(int yawByte, int pitchByte, int damage) {
     float       yaw, pitch;
 
     // show the attacking player's head and name in corner
-    cg.attackerTime = cg.time;
+    cg.attackerTime = cg.realTime;
 
     // the lower on health you are, the greater the view kick will be
     health = cg.snap->ps.stats[STAT_HEALTH];
@@ -193,7 +193,7 @@ void CG_Respawn(void) {
     cg.thisFrameTeleport = qtrue;
 
     // display weapons available
-    cg.weaponSelectTime = cg.time;
+    cg.weaponSelectTime = cg.realTime;
 
     // select the weapon the server says we are using
     cg.weaponSelect = cg.snap->ps.weapon;

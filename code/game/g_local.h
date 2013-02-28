@@ -332,6 +332,7 @@ struct gclient_s {
     int         lastTarget;
     char*       lastPickup;
     vec3_t      deathLocation;
+    int         timeouts;
 };
 
 
@@ -357,6 +358,12 @@ typedef struct {
 
     int         framenum;
     int         time;                   // in msec
+    int         realTime;
+    qboolean    timeout;
+    int         timeoutEnd;
+    int         timeoutAdd;
+    int         timeoutsRed;
+    int         timeoutsBlue;
     int         previousTime;           // so movers can back up when blocked
 
     int         startTime;              // level.time the map was started
@@ -763,6 +770,9 @@ extern  vmCvar_t    g_singlePlayer;
 extern  vmCvar_t    g_proxMineTimeout;
 extern  vmCvar_t    g_itemDrop;
 extern  vmCvar_t    g_respawnTimer;
+extern  vmCvar_t    g_timeoutTime;
+extern  vmCvar_t    g_timeouts;
+extern  vmCvar_t    g_teamTimeouts;
 
 void    trap_Print(const char* text);
 void    trap_Error(const char* text) __attribute__((noreturn));

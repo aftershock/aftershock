@@ -1470,7 +1470,8 @@ void CG_DrawWeaponSelect(void) {
     trap_R_SetColor(color);
 
     // showing weapon select clears pickup item display, but not the blend blob
-    cg.itemPickupTime = 0;
+    // Obsolete with superHUD
+    //cg.itemPickupTime = 0;
 
     // count the number of weapons owned
     bits = cg.snap->ps.stats[ STAT_WEAPONS ];
@@ -1553,7 +1554,7 @@ void CG_NextWeapon_f(void) {
         return;
     }
 
-    cg.weaponSelectTime = cg.time;
+    cg.weaponSelectTime = cg.realTime;
     original = cg.weaponSelect;
 
     for (i = 0 ; i < MAX_WEAPONS ; i++) {
@@ -1589,7 +1590,7 @@ void CG_PrevWeapon_f(void) {
         return;
     }
 
-    cg.weaponSelectTime = cg.time;
+    cg.weaponSelectTime = cg.realTime;
     original = cg.weaponSelect;
 
     for (i = 0 ; i < MAX_WEAPONS ; i++) {
@@ -1635,7 +1636,7 @@ void CG_Weapon_f(void) {
         return;
     }
 
-    cg.weaponSelectTime = cg.time;
+    cg.weaponSelectTime = cg.realTime;
 
     if (!(cg.snap->ps.stats[STAT_WEAPONS] & (1 << num))) {
         return;     // don't have the weapon
@@ -1654,7 +1655,7 @@ The current weapon has just run out of ammo
 void CG_OutOfAmmoChange(void) {
     int     i;
 
-    cg.weaponSelectTime = cg.time;
+    cg.weaponSelectTime = cg.realTime;
 
     for (i = MAX_WEAPONS - 1 ; i > 0 ; i--) {
         if (CG_WeaponSelectable(i)) {

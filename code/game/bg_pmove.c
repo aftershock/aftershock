@@ -1826,6 +1826,12 @@ void PmoveSingle(pmove_t* pmove) {
     pm->watertype = 0;
     pm->waterlevel = 0;
 
+    if ( pm->timeout ) {
+        pm->cmd.forwardmove = 0;
+        pm->cmd.upmove = 0;
+        pm->cmd.rightmove = 0;
+    }
+
     if (pm->ps->stats[STAT_HEALTH] <= 0) {
         pm->tracemask &= ~CONTENTS_BODY;    // corpses can fly through bodies
     }
@@ -1888,10 +1894,10 @@ void PmoveSingle(pmove_t* pmove) {
     VectorCopy(pm->ps->velocity, pml.previous_velocity);
 
     pml.frametime = pml.msec * 0.001;
-
-    // update the viewangles
-    PM_UpdateViewAngles(pm->ps, &pm->cmd);
-
+    if ( !pm->timeout ) {
+        // update the viewangles
+        PM_UpdateViewAngles(pm->ps, &pm->cmd);
+    }
     AngleVectors(pm->ps->viewangles, pml.forward, pml.right, pml.up);
 
     if (pm->cmd.upmove < 10) {
@@ -1904,6 +1910,10 @@ void PmoveSingle(pmove_t* pmove) {
         pm->ps->pm_flags |= PMF_BACKWARDS_RUN;
     } else if (pm->cmd.forwardmove > 0 || (pm->cmd.forwardmove == 0 && pm->cmd.rightmove)) {
         pm->ps->pm_flags &= ~PMF_BACKWARDS_RUN;
+    }
+
+    if (pm->timeout) {
+        return;
     }
 
     if (pm->ps->pm_type >= PM_DEAD) {

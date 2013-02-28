@@ -96,6 +96,9 @@ vmCvar_t    g_enableBreath;
 vmCvar_t    g_proxMineTimeout;
 #endif
 vmCvar_t    g_respawnTimer;
+vmCvar_t    g_timeoutTime;
+vmCvar_t    g_timeouts;
+vmCvar_t    g_teamTimeouts;
 
 static cvarTable_t      gameCvarTable[] = {
     // don't override the cheat state set by the system
@@ -180,7 +183,10 @@ static cvarTable_t      gameCvarTable[] = {
 
     { &g_rankings, "g_rankings", "0", 0, 0, qfalse},
     { &g_itemDrop, "g_itemDrop", "3", 0, 0, qfalse},
-    { &g_respawnTimer, "g_respawnTimer", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse}
+    { &g_respawnTimer, "g_respawnTimer", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse},
+    { &g_timeoutTime, "g_timeoutTime", "30", 0, 0, qfalse},
+    { &g_timeouts, "g_timeouts", "3", 0, 0, qfalse},
+    { &g_teamTimeouts, "g_teamTimeouts", "6", 0, 0, qfalse}
 
 };
 
@@ -421,8 +427,13 @@ void G_InitGame(int levelTime, int randomSeed, int restart) {
 
     // set some level globals
     memset(&level, 0, sizeof(level));
+    level.realTime = levelTime;
     level.time = levelTime;
     level.startTime = levelTime;
+    level.timeoutAdd = 0;
+    level.timeout = qfalse;
+    level.timeoutsBlue = 0;
+    level.timeoutsRed = 0;
 
     level.snd_fry = G_SoundIndex("sound/player/fry.wav");   // FIXME standing in lava / slime
 
@@ -1763,8 +1774,18 @@ void G_RunFrame(int levelTime) {
     }
 
     level.framenum++;
-    level.previousTime = level.time;
-    level.time = levelTime;
+    level.realTime = levelTime;
+
+    if (level.timeout){
+        if (level.timeoutEnd < level.realTime) {
+            level.timeout = qfalse;
+        }
+    }
+
+    if (!level.timeout) {
+        level.previousTime = level.time;
+        level.time = level.realTime - level.timeoutAdd;
+    }
 
     // get any cvar changes
     G_UpdateCvars();

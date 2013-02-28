@@ -220,8 +220,9 @@ static void CG_InterpolatePlayerState(qboolean grabAngles) {
 
         cmdNum = trap_GetCurrentCmdNumber();
         trap_GetUserCmd(cmdNum, &cmd);
-
-        PM_UpdateViewAngles(out, &cmd);
+        if ( !cg.timeout ) {
+            PM_UpdateViewAngles(out, &cmd);
+        }
     }
 
     // if the next frame is a teleport, we can't lerp to it
@@ -503,8 +504,7 @@ void CG_PredictPlayerState(void) {
     for (cmdNum = current - CMD_BACKUP + 1 ; cmdNum <= current ; cmdNum++) {
         // get the command
         trap_GetUserCmd(cmdNum, &cg_pmove.cmd);
-
-        if (cg_pmove.pmove_fixed) {
+        if (cg_pmove.pmove_fixed && !cg.timeout) {
             PM_UpdateViewAngles(cg_pmove.ps, &cg_pmove.cmd);
         }
 
@@ -579,7 +579,7 @@ void CG_PredictPlayerState(void) {
         if (cg_pmove.pmove_fixed) {
             cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pmove_msec.integer - 1) / pmove_msec.integer) * pmove_msec.integer;
         }
-
+        cg_pmove.timeout = cg.timeout;
         Pmove(&cg_pmove);
 
         moved = qtrue;

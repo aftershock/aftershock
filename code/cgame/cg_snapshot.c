@@ -35,7 +35,7 @@ CG_ResetEntity
 static void CG_ResetEntity(centity_t* cent) {
     // if the previous snapshot this entity was updated in is at least
     // an event window back in time then we can reset the previous event
-    if (cent->snapShotTime < cg.time - EVENT_VALID_MSEC) {
+    if (cent->snapShotTime < cg.realTime - EVENT_VALID_MSEC) {
         cent->previousEvent = 0;
     }
 
@@ -356,7 +356,7 @@ void CG_ProcessSnapshots(void) {
     }
 
     // loop until we either have a valid nextSnap with a serverTime
-    // greater than cg.time to interpolate towards, or we run
+    // greater than cg.realTime to interpolate towards, or we run
     // out of available snapshots
     do {
         // if we don't have a nextframe, try and read a new one in
@@ -379,7 +379,7 @@ void CG_ProcessSnapshots(void) {
         }
 
         // if our time is < nextFrame's, we have a nice interpolating state
-        if (cg.time >= cg.snap->serverTime && cg.time < cg.nextSnap->serverTime) {
+        if (cg.realTime >= cg.snap->serverTime && cg.realTime < cg.nextSnap->serverTime) {
             break;
         }
 
@@ -391,12 +391,12 @@ void CG_ProcessSnapshots(void) {
     if (cg.snap == NULL) {
         CG_Error("CG_ProcessSnapshots: cg.snap == NULL");
     }
-    if (cg.time < cg.snap->serverTime) {
+    if (cg.realTime < cg.snap->serverTime) {
         // this can happen right after a vid_restart
-        cg.time = cg.snap->serverTime;
+        cg.realTime = cg.snap->serverTime;
     }
-    if (cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.time) {
-        CG_Error("CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time");
+    if (cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.realTime) {
+        CG_Error("CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.realTime");
     }
 
 }

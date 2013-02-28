@@ -395,7 +395,9 @@ void ClientTimerActions(gentity_t* ent, int msec) {
 #ifdef MISSIONPACK
     int         maxHealth;
 #endif
-
+    if (level.timeout) {
+        return;
+    }
     client = ent->client;
     client->timeResidual += msec;
 
@@ -755,12 +757,12 @@ void ClientThink_real(gentity_t* ent) {
     ucmd = &ent->client->pers.cmd;
 
     // sanity check the command time to prevent speedup cheating
-    if (ucmd->serverTime > level.time + 200) {
-        ucmd->serverTime = level.time + 200;
+    if (ucmd->serverTime > level.realTime + 200) {
+        ucmd->serverTime = level.realTime + 200;
         //      G_Printf("serverTime <<<<<\n" );
     }
-    if (ucmd->serverTime < level.time - 1000) {
-        ucmd->serverTime = level.time - 1000;
+    if (ucmd->serverTime < level.realTime - 1000) {
+        ucmd->serverTime = level.realTime - 1000;
         //      G_Printf("serverTime >>>>>\n" );
     }
 
@@ -919,6 +921,7 @@ void ClientThink_real(gentity_t* ent) {
     }
     Pmove(&pm);
 #else
+    pm.timeout = level.timeout;
     Pmove(&pm);
 #endif
 
@@ -1012,7 +1015,7 @@ void ClientThink(int clientNum) {
 
     // mark the time we got info, so we can display the
     // phone jack if they don't get any for a while
-    ent->client->lastCmdTime = level.time;
+    ent->client->lastCmdTime = level.realTime;
 
     if (!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer) {
         ClientThink_real(ent);
@@ -1024,7 +1027,7 @@ void G_RunClient(gentity_t* ent) {
     if (!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer) {
         return;
     }
-    ent->client->pers.cmd.serverTime = level.time;
+    ent->client->pers.cmd.serverTime = level.realTime;
     ClientThink_real(ent);
 }
 
@@ -1145,7 +1148,7 @@ void ClientEndFrame(gentity_t* ent) {
     P_DamageFeedback(ent);
 
     // add the EF_CONNECTION flag if we haven't gotten commands recently
-    if (level.time - ent->client->lastCmdTime > 1000) {
+    if (level.time - ent->client->lastCmdTime > 1000 && !level.timeout) {
         ent->client->ps.eFlags |= EF_CONNECTION;
     } else {
         ent->client->ps.eFlags &= ~EF_CONNECTION;

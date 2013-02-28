@@ -466,11 +466,11 @@ typedef struct {
     int         latestSnapshotNum;  // the number of snapshots the client system has received
     int         latestSnapshotTime; // the time from latestSnapshotNum, so we don't need to read the snapshot yet
 
-    snapshot_t*  snap;              // cg.snap->serverTime <= cg.time
-    snapshot_t*  nextSnap;          // cg.nextSnap->serverTime > cg.time, or NULL
+    snapshot_t*  snap;              // cg.snap->serverTime <= cg.realTime
+    snapshot_t*  nextSnap;          // cg.nextSnap->serverTime > cg.realTime, or NULL
     snapshot_t  activeSnapshots[2];
 
-    float       frameInterpolation; // (float)( cg.time - cg.frame->serverTime ) / (cg.nextFrame->serverTime - cg.frame->serverTime)
+    float       frameInterpolation; // (float)( cg.realTtime - cg.frame->serverTime ) / (cg.nextFrame->serverTime - cg.frame->serverTime)
 
     qboolean    thisFrameTeleport;
     qboolean    nextFrameTeleport;
@@ -478,6 +478,11 @@ typedef struct {
     int         frametime;      // cg.time - cg.oldTime
 
     int         time;           // this is the time value that the client
+    int         realTime;
+    qboolean    timeout;
+    int         timeoutEnd;
+    int         timeoutAdd;
+    char        timeoutName[MAX_NAME_LENGTH];
     // is rendering at.
     int         oldTime;        // time at last frame, used for missile trails and prediction checking
 
