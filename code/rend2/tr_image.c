@@ -2694,7 +2694,7 @@ void R_CreateBuiltinImages(void) {
         tr.godRaysImage = R_CreateImage("*godRays", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
 #endif
 
-        {
+        if (r_softOverbright->integer) {
             int format;
 
             if (glRefConfig.texture_srgb && glRefConfig.framebuffer_srgb)
@@ -2775,13 +2775,13 @@ void R_SetColorMappings(void) {
         tr.overbrightBits = 0;      // need hardware gamma for overbright
     }
 
-    // never overbright in windowed mode
-    if (0 /* !glConfig.isFullscreen */) {
+    // never overbright in windowed mode without soft overbright
+    if (!glConfig.isFullscreen && !r_softOverbright->integer) {
         tr.overbrightBits = 0;
     }
 
     // never overbright with tonemapping
-    if (r_toneMap->integer) {
+    if (r_toneMap->integer && r_hdr->integer) {
         tr.overbrightBits = 0;
     }
 
@@ -2817,8 +2817,10 @@ void R_SetColorMappings(void) {
 
     shift = tr.overbrightBits;
 
-    if (glRefConfig.framebufferObject)
+    // no shift with soft overbright
+    if (r_softOverbright->integer) {
         shift = 0;
+    }
 
     for (i = 0; i < 256; i++) {
         if (g == 1) {
