@@ -267,6 +267,9 @@ static void CG_TouchItem(centity_t* cent) {
     if (!BG_PlayerTouchesItem(&cg.predictedPlayerState, &cent->currentState, cg.time)) {
         return;
     }
+    if (cent->currentState.eFlags & EF_DEAD) {
+        return;
+    }
 
     // never pick an item up twice in a prediction
     if (cent->miscTime == cg.time) {

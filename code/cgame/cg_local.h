@@ -643,6 +643,8 @@ typedef struct {
     char            testModelName[MAX_QPATH];
     qboolean        testGun;
 
+    qboolean    holdWeaponDrop;
+
 } cg_t;
 
 

@@ -444,6 +444,25 @@ static void CG_Camera_f( void ) {
 }
 */
 
+/*
+==================
+CG_WeaponDropDown_f
+==================
+*/
+
+static void CG_WeaponDropDown_f(void) {
+    cg.holdWeaponDrop = qtrue;
+}
+
+/*
+==================
+CG_WeaponDropDown_f
+==================
+*/
+
+static void CG_WeaponDropUp_f(void) {
+    cg.holdWeaponDrop = qfalse;
+}
 
 typedef struct {
     char*    cmd;
@@ -500,7 +519,9 @@ static consoleCommand_t commands[] = {
 #endif
     { "startOrbit", CG_StartOrbit_f },
     //{ "camera", CG_Camera_f },
-    { "loaddeferred", CG_LoadDeferredPlayers }
+    { "loaddeferred", CG_LoadDeferredPlayers },
+    { "+weapondrop", CG_WeaponDropDown_f },
+    { "-weapondrop", CG_WeaponDropUp_f },
 };
 
 
@@ -580,4 +601,6 @@ void CG_InitConsoleCommands(void) {
     trap_AddCommand("stats");
     trap_AddCommand("teamtask");
     trap_AddCommand("loaddefered");     // spelled wrong, but not changing for demo
+    trap_AddCommand("dropweapon");
+    trap_AddCommand("dropflag");
 }

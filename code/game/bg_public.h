@@ -239,7 +239,7 @@ typedef enum {
 
 
 // entityState_t->eFlags
-#define EF_DEAD             0x00000001      // don't draw a foe marker over players with EF_DEAD
+#define EF_DEAD             0x00000001      // don't draw a foe marker over players with EF_DEAD, if the entity is an item dont predict the itempickup
 #ifdef MISSIONPACK
 #define EF_TICKING          0x00000002      // used to make players play the prox mine ticking sound
 #endif

@@ -229,11 +229,11 @@ int Pickup_Ammo(gentity_t* ent, gentity_t* other) {
 
 //======================================================================
 
-
 int Pickup_Weapon(gentity_t* ent, gentity_t* other) {
     int     quantity;
-
-    if (ent->count < 0) {
+    if ((ent->flags & FL_DROPPED_ITEM) && (ent->droptime != -1)) {
+        quantity = ent->dropquantity;
+    } else if (ent->count < 0) {
         quantity = 0; // None for you, sir!
     } else {
         if (ent->count) {
@@ -403,7 +403,7 @@ void RespawnItem(gentity_t* ent) {
     ent->nextthink = 0;
 }
 
-
+#define ITEMDROP_DELAY 500
 /*
 ===============
 Touch_Item
@@ -417,6 +417,9 @@ void Touch_Item(gentity_t* ent, gentity_t* other, trace_t* trace) {
         return;
     if (other->health < 1)
         return;     // dead people can't pickup
+        
+    if ((level.time-ent->droptime) < ITEMDROP_DELAY)
+        return;
 
     // the same pickup rules are used for client side and server side
     if (!BG_CanItemBeGrabbed(g_gametype.integer, &ent->s, &other->client->ps)) {
@@ -556,7 +559,7 @@ LaunchItem
 Spawns an item and tosses it forward
 ================
 */
-gentity_t* LaunchItem(gitem_t* item, vec3_t origin, vec3_t velocity) {
+gentity_t* LaunchItem(gitem_t* item, vec3_t origin, vec3_t velocity, qboolean itemdrop, int dropquantity) {
     gentity_t*   dropped;
 
     dropped = G_Spawn();
@@ -593,6 +596,14 @@ gentity_t* LaunchItem(gitem_t* item, vec3_t origin, vec3_t velocity) {
     }
 
     dropped->flags = FL_DROPPED_ITEM;
+    
+    if (itemdrop) {
+        dropped->droptime = level.time;
+        dropped->dropquantity = dropquantity;
+        dropped->s.eFlags |= EF_DEAD;
+    } else {
+        dropped->droptime = -1;
+    }
 
     trap_LinkEntity(dropped);
 
@@ -618,9 +629,61 @@ gentity_t* Drop_Item(gentity_t* ent, gitem_t* item, float angle) {
     VectorScale(velocity, 150, velocity);
     velocity[2] += 200 + crandom() * 50;
 
-    return LaunchItem(item, ent->s.pos.trBase, velocity);
+    return LaunchItem(item, ent->s.pos.trBase, velocity, qfalse, 0);
 }
 
+/*
+================
+Drop_Item_Weapon
+
+Spawns a weapon and tosses it forward
+Used for weapondrop
+================
+*/
+gentity_t* Drop_Item_Weapon(gentity_t* ent, gitem_t* item, float angle) {
+    vec3_t  velocity;
+    vec3_t  angles;
+    int ammo;
+
+    VectorCopy(ent->s.apos.trBase, angles);
+    angles[YAW] += angle;
+    angles[PITCH] = 0;  // always forward
+
+    AngleVectors(angles, velocity, NULL, NULL);
+    VectorScale(velocity, 150, velocity);
+    velocity[2] += 200 + crandom() * 50;
+    
+    ammo = ent->client->ps.ammo[item->giTag];
+    ent->client->ps.ammo[item->giTag] = 0;
+    
+    //Remove weapon from weaponlist
+    ent->client->ps.stats[STAT_WEAPONS] &= ~( 1 << item->giTag );
+
+    return LaunchItem(item, ent->s.pos.trBase, velocity, qtrue, ammo);
+}
+
+/*
+================
+Drop_Item_Flag
+
+Spawns a flag and tosses it forward
+Used for flagdrop
+================
+*/
+gentity_t* Drop_Item_Flag(gentity_t* ent, gitem_t* item, float angle) {
+    vec3_t  velocity;
+    vec3_t  angles;
+
+    VectorCopy(ent->s.apos.trBase, angles);
+    angles[YAW] += angle;
+    angles[PITCH] = 0;  // always forward
+
+    AngleVectors(angles, velocity, NULL, NULL);
+    VectorScale(velocity, 150, velocity);
+    velocity[2] += 200 + crandom() * 50;
+
+    return LaunchItem(item, ent->s.pos.trBase, velocity, qtrue, -1);
+}
 
 /*
 ================
