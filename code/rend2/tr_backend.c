@@ -1631,7 +1631,7 @@ const void* RB_PostProcess(const void* data) {
         if (r_hdr->integer && (r_toneMap->integer || r_forceToneMap->integer)) {
             autoExposure = r_autoExposure->integer || r_forceAutoExposure->integer;
             RB_ToneMap(srcFbo, autoExposure);
-        } else if (!glRefConfig.framebuffer_srgb && r_cameraExposure->value == 0.0f) {
+        } else if (r_cameraExposure->value == 0.0f) {
             FBO_FastBlit(srcFbo, NULL, tr.screenScratchFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
         } else {
             vec4_t color;
