@@ -190,6 +190,7 @@ vmCvar_t    cg_teamChatSound;
 vmCvar_t    cg_personalChatSound;
 vmCvar_t    cg_highlight;
 vmCvar_t    cg_highlightNames;
+vmCvar_t    s_ambient;
 
 #ifdef MISSIONPACK
 vmCvar_t    cg_redTeamName;
@@ -333,6 +334,7 @@ static cvarTable_t cvarTable[] = {
     { &cg_personalChatSound, "cg_personalChatSound", "3", CVAR_ARCHIVE},
     { &cg_highlight, "cg_highlight", "0", CVAR_ARCHIVE},
     { &cg_highlightNames, "cg_highlightNames", "", CVAR_ARCHIVE},
+    { &s_ambient, "s_ambient", "1", CVAR_ARCHIVE|CVAR_LATCH},
     //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
     { &cg_itemFx, "cg_itemFx", "7", CVAR_ARCHIVE}
 };

@@ -1188,6 +1188,7 @@ extern  vmCvar_t        cg_teamChatSound;
 extern  vmCvar_t        cg_personalChatSound;
 extern  vmCvar_t        cg_highlight;
 extern  vmCvar_t        cg_highlightNames;
+extern  vmCvar_t        s_ambient;
 #ifdef MISSIONPACK
 extern  vmCvar_t        cg_redTeamName;
 extern  vmCvar_t        cg_blueTeamName;
