@@ -870,7 +870,7 @@ typedef struct {
     sfxHandle_t teleOutSound;
     sfxHandle_t noAmmoSound;
     sfxHandle_t respawnSound;
-    sfxHandle_t talkSound;
+    sfxHandle_t talkSound[3];
     sfxHandle_t landSound;
     sfxHandle_t fallSound;
     sfxHandle_t jumpPadSound;
@@ -1181,6 +1181,11 @@ extern  vmCvar_t        cg_oldPlasma;
 extern  vmCvar_t        cg_trueLightning;
 extern  vmCvar_t        cg_noKick;
 extern  vmCvar_t 	    cg_weaponBobbing;
+extern  vmCvar_t        cg_chatSound;
+extern  vmCvar_t        cg_teamChatSound;
+extern  vmCvar_t        cg_personalChatSound;
+extern  vmCvar_t        cg_highlight;
+extern  vmCvar_t        cg_highlightNames;
 #ifdef MISSIONPACK
 extern  vmCvar_t        cg_redTeamName;
 extern  vmCvar_t        cg_blueTeamName;
