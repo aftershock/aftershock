@@ -317,6 +317,10 @@ struct gclient_s {
 #endif
 
     char*        areabits;
+
+    int         lastTarget;
+    char*       lastPickup;
+    vec3_t      deathLocation;
 };
 
 

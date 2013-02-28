@@ -462,6 +462,8 @@ void Touch_Item(gentity_t* ent, gentity_t* other, trace_t* trace) {
             return;
     }
 
+    other->client->lastPickup = ent->item->shortName;
+
     if (!respawn) {
         return;
     }

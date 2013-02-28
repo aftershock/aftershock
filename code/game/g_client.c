@@ -1020,6 +1020,10 @@ void ClientBegin(int clientNum) {
 
     // count current clients and rank for scoreboard
     CalculateRanks();
+
+    client->lastTarget = -1;
+    client->lastPickup = "";
+    client->lasthurt_client = -1;
 }
 
 /*
@@ -1047,6 +1051,10 @@ void ClientSpawn(gentity_t* ent) {
     int     accuracy_hits, accuracy_shots;
     int     eventSequence;
     char    userinfo[MAX_INFO_STRING];
+    int     lastTarget;
+    char*   lastPickup;
+    vec3_t  deathLocation;
+    int     lasthurt_client;
 
     index = ent - g_entities;
     client = ent->client;
@@ -1102,6 +1110,11 @@ void ClientSpawn(gentity_t* ent) {
     }
     eventSequence = client->ps.eventSequence;
 
+    lastTarget = client->lastTarget;
+    lastPickup = client->lastPickup;
+    VectorCopy(client->deathLocation, deathLocation);
+    lasthurt_client = client->lasthurt_client;
+
     Com_Memset(client, 0, sizeof(*client));
 
     client->pers = saved;
@@ -1111,6 +1124,10 @@ void ClientSpawn(gentity_t* ent) {
     client->accuracy_hits = accuracy_hits;
     client->accuracy_shots = accuracy_shots;
     client->lastkilled_client = -1;
+    client->lastTarget = lastTarget;
+    client->lastPickup = lastPickup;
+    VectorCopy(deathLocation, client->deathLocation);
+    client->lasthurt_client = lasthurt_client;
 
     for (i = 0 ; i < MAX_PERSISTANT ; i++) {
         client->ps.persistant[i] = persistant[i];

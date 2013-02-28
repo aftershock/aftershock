@@ -939,6 +939,71 @@ qboolean Team_GetLocationMsg(gentity_t* ent, char* loc, int loclen) {
     return qtrue;
 }
 
+/*
+===========
+Team_GetDeathLocation
+
+Report a location for the player. Uses placed nearby target_location entities
+============
+*/
+gentity_t* Team_GetDeathLocation(gentity_t* ent) {
+    gentity_t*       eloc, *best;
+    float           bestlen, len;
+    vec3_t          origin;
+
+    best = NULL;
+    bestlen = 3 * 8192.0 * 8192.0;
+
+    VectorCopy(ent->client->deathLocation, origin);
+
+    for (eloc = level.locationHead; eloc; eloc = eloc->nextTrain) {
+        len = (origin[0] - eloc->r.currentOrigin[0]) * (origin[0] - eloc->r.currentOrigin[0])
+              + (origin[1] - eloc->r.currentOrigin[1]) * (origin[1] - eloc->r.currentOrigin[1])
+              + (origin[2] - eloc->r.currentOrigin[2]) * (origin[2] - eloc->r.currentOrigin[2]);
+
+        if (len > bestlen) {
+            continue;
+        }
+
+        if (!trap_InPVS(origin, eloc->r.currentOrigin)) {
+            continue;
+        }
+
+        bestlen = len;
+        best = eloc;
+    }
+
+    return best;
+}
+
+
+/*
+===========
+Team_GetLocation
+
+Report a location for the player. Uses placed nearby target_location entities
+============
+*/
+qboolean Team_GetDeathLocationMsg(gentity_t* ent, char* loc, int loclen) {
+    gentity_t* best;
+
+    best = Team_GetDeathLocation(ent);
+
+    if (!best)
+        return qfalse;
+
+    if (best->count) {
+        if (best->count < 0)
+            best->count = 0;
+        if (best->count > 7)
+            best->count = 7;
+        Com_sprintf(loc, loclen, "%c%c%s" S_COLOR_WHITE, Q_COLOR_ESCAPE, best->count + '0', best->message);
+    } else
+        Com_sprintf(loc, loclen, "%s", best->message);
+
+    return qtrue;
+}
+
 
 /*---------------------------------------------------------------------------*/
 

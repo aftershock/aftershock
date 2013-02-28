@@ -834,6 +834,82 @@ static void G_SayTo(gentity_t* ent, gentity_t* other, int mode, int color, const
                                                   name, Q_COLOR_ESCAPE, color, message, ent == other ? 1 : 0 ));
 }
 
+/*
+==================
+G_NextItem
+==================
+*/
+
+static char* G_NextItem( vec3_t origin, qboolean dropped, qboolean major ) {
+    int i;
+    int bestitem = -1;
+    float bestdist = 3 * 8192.0 * 8192.0, dist;
+    for( i = 0; i < MAX_GENTITIES; i++ ) {
+        if ( g_entities[i].s.eType != ET_ITEM )
+            continue;
+
+        if ( g_entities[i].flags & FLAG_DROPPED && !dropped )
+            continue;
+
+        if ( major ) {
+            if ( g_entities[i].item->giType == IT_AMMO )
+                continue;
+            if ( g_entities[i].item->giType == IT_ARMOR && g_entities[i].item->quantity < 50 )
+                continue;
+            if ( g_entities[i].item->giType == IT_HEALTH && g_entities[i].item->quantity < 50 )
+                continue;
+        }
+
+        dist =  ( origin[0] - g_entities[i].r.currentOrigin[0] ) * ( origin[0] - g_entities[i].r.currentOrigin[0] ) +
+                ( origin[1] - g_entities[i].r.currentOrigin[1] ) * ( origin[1] - g_entities[i].r.currentOrigin[1] ) +
+                3 * ( origin[2] - g_entities[i].r.currentOrigin[2] ) * ( origin[2] - g_entities[i].r.currentOrigin[2] );
+
+        if ( dist > bestdist )
+            continue;
+        bestdist = dist;
+        bestitem = i;
+    }
+    if ( bestitem >= 0 )
+        return g_entities[bestitem].item->shortName;
+
+    return "";
+}
+
+/*
+==================
+G_NextFriend
+==================
+*/
+
+static char* G_NextFriend( vec3_t origin, team_t team, int clientnum ) {
+    int i;
+    int bestitem = -1;
+    float bestdist = 3 * 8192.0 * 8192.0, dist;
+    for( i = 0; i < MAX_GENTITIES; i++ ) {
+        if ( g_entities[i].s.eType != ET_PLAYER )
+            continue;
+
+        if ( g_entities[i].client->ps.clientNum == clientnum )
+            continue;
+
+        if ( g_entities[i].client->sess.sessionTeam != team )
+            continue;
+
+        dist =  ( origin[0] - g_entities[i].r.currentOrigin[0] ) * ( origin[0] - g_entities[i].r.currentOrigin[0] ) +
+                ( origin[1] - g_entities[i].r.currentOrigin[1] ) * ( origin[1] - g_entities[i].r.currentOrigin[1] ) +
+                3 * ( origin[2] - g_entities[i].r.currentOrigin[2] ) * ( origin[2] - g_entities[i].r.currentOrigin[2] );
+
+        if ( dist > bestdist )
+            continue;
+        bestdist = dist;
+        bestitem = i;
+    }
+    if ( bestitem >= 0 )
+        return g_entities[bestitem].client->pers.netname;
+
+    return "";
+}
+
 #define EC      "\x19"
 
 void G_Say(gentity_t* ent, gentity_t* target, int mode, const char* chatText) {
@@ -843,6 +919,7 @@ void G_Say(gentity_t* ent, gentity_t* target, int mode, const char* chatText) {
     char        name[64];
     // don't let text be too long for malicious reasons
     char        text[MAX_SAY_TEXT];
+    char        buffer[MAX_SAY_TEXT];
     char        location[64];
 
     if (g_gametype.integer < GT_TEAM && mode == SAY_TEAM) {
@@ -878,6 +955,269 @@ void G_Say(gentity_t* ent, gentity_t* target, int mode, const char* chatText) {
     }
 
     Q_strncpyz(text, chatText, sizeof(text));
+    Q_strncpyz(buffer, chatText, sizeof(buffer));
+
+    if (ent->client->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR) {
+        for (j = 1; j < MAX_SAY_TEXT; j++) {
+
+            if (text[j] == '\0')
+                break;
+
+            if (text[j-1] == '#') {
+                if (text[j] == 'A') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    if ( ent->client->ps.stats[STAT_ARMOR] < 50 )
+                        Com_sprintf( text, sizeof(text), buffer, va("^1%i",ent->client->ps.stats[STAT_ARMOR]) );
+                    else if ( ent->client->ps.stats[STAT_ARMOR] < 100 )
+                        Com_sprintf( text, sizeof(text), buffer, va("^3%i",ent->client->ps.stats[STAT_ARMOR]) );
+                    else
+                        Com_sprintf( text, sizeof(text), buffer, va("^2%i",ent->client->ps.stats[STAT_ARMOR]) );
+
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'a') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 'i';
+                    Com_sprintf( text, sizeof(text), buffer, ent->client->ps.stats[STAT_ARMOR] );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'C') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    if (ent->client->ps.persistant[PERS_KILLED]) {
+                        Team_GetDeathLocationMsg(ent, location, sizeof(location));
+                        Com_sprintf( text, sizeof(text), buffer, location );
+                    } else
+                        Com_sprintf( text, sizeof(text), buffer, "" );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'c') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    if (ent->client->ps.persistant[PERS_KILLED]) 
+                        Com_sprintf( text, sizeof(text), buffer, G_NextItem(ent->client->deathLocation, qfalse, qtrue) );
+                    else
+                        Com_sprintf( text, sizeof(text), buffer, "" );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                }else if (text[j] == 'D') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    if ( ent->client->lasthurt_client < 0 || ent->client->lasthurt_client > MAX_CLIENTS ) {
+                        Com_sprintf( text, sizeof(text), buffer, "" );
+                    } else {
+                        Com_sprintf( text, sizeof(text), buffer, va("%s", g_entities[ent->client->lasthurt_client].client->pers.netname ) );
+                    }
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'E') {
+
+                    int     i, enemies = 0;
+                    vec3_t  forward, right, up, muzzle, dist, angles;
+                    char    userinfo[MAX_INFO_STRING];
+                    float   fov;
+                    trace_t tr;
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+
+                    AngleVectors (ent->client->ps.viewangles, forward, right, up);
+                    CalcMuzzlePoint ( ent, forward, right, up, muzzle );
+
+                    trap_GetUserinfo( ent->client->ps.clientNum , userinfo, sizeof(userinfo) );
+                    fov = atof( Info_ValueForKey( userinfo, "cg_fov" ) );
+
+                    for ( i = 0; i < MAX_GENTITIES; i++ ) {
+                        if ( !g_entities[i].inuse )
+                            continue;
+                        if ( g_entities[i].s.eType != ET_PLAYER )
+                            continue;
+                        if ( g_entities[i].client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR )
+                            continue;
+                        if ( g_entities[i].client->ps.stats[STAT_HEALTH] <= 0 )
+                            continue;
+                        if ( g_gametype.integer >= GT_TEAM ) {
+                            if ( ent->client->ps.persistant[PERS_TEAM] == g_entities[i].client->ps.persistant[PERS_TEAM] )
+                                continue;
+                        } else {
+                            if ( ent->client->ps.persistant[PERS_TEAM] != g_entities[i].client->ps.persistant[PERS_TEAM] )
+                                continue;
+                        }
+                        if ( ent->client->ps.clientNum == g_entities[i].client->ps.clientNum )
+                            continue;
+
+                        trap_Trace(&tr, muzzle, NULL, NULL, g_entities[i].r.currentOrigin, ENTITYNUM_NONE, MASK_SOLID);
+                        if ( tr.fraction != 1.0 )
+                            continue;
+
+                        dist[0] = g_entities[i].r.currentOrigin[0] - muzzle[0];
+                        dist[1] = g_entities[i].r.currentOrigin[1] - muzzle[1];
+                        dist[2] = g_entities[i].r.currentOrigin[2] - muzzle[2];
+                        vectoangles(dist, angles);
+
+                        angles[0] = ent->client->ps.viewangles[0] - angles[0];
+                        angles[1] = ent->client->ps.viewangles[1] - angles[1];
+
+                        if ( angles[0] < -180 )
+                            angles[0] += 360;
+                        else if ( angles[0] > 180 )
+                            angles[0] -= 360;
+
+                        if ( angles[1] < -180 )
+                            angles[1] += 360;
+                        else if ( angles[1] > 180 )
+                            angles[1] -= 360;
+
+                        if ( (2.0f*angles[0] >= -fov && 2.0f*angles[0] <= fov ) && (2.0f*angles[1] >= -fov && 2.0f*angles[1] <= fov ) )
+                            enemies++;
+                    }
+                    if ( enemies != 1 )
+                        Com_sprintf( text, sizeof(text), buffer, va("%i enemies", enemies) );
+                    else
+                        Com_sprintf( text, sizeof(text), buffer, "1 enemy" );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'F') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    if ( g_gametype.integer >= GT_TEAM ) {
+                        Com_sprintf( text, sizeof(text), buffer, G_NextFriend(ent->r.currentOrigin, ent->client->sess.sessionTeam, ent->client->ps.clientNum) );
+                    } else {
+                        Com_sprintf( text, sizeof(text), buffer, "" );
+                    }
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'H') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    if ( ent->client->ps.stats[STAT_HEALTH] < 50 )
+                        Com_sprintf( text, sizeof(text), buffer, va("^1%i",ent->client->ps.stats[STAT_HEALTH]) );
+                    else if ( ent->client->ps.stats[STAT_HEALTH] < 100 )
+                        Com_sprintf( text, sizeof(text), buffer, va("^3%i",ent->client->ps.stats[STAT_HEALTH]) );
+                    else
+                        Com_sprintf( text, sizeof(text), buffer, va("^2%i",ent->client->ps.stats[STAT_HEALTH]) );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'h') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 'i';
+                    Com_sprintf( text, sizeof(text), buffer, ent->client->ps.stats[STAT_HEALTH] );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'I') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    Com_sprintf( text, sizeof(text), buffer, G_NextItem(ent->r.currentOrigin, qtrue, qfalse) );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'L') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    Com_sprintf( text, sizeof(text), buffer, G_NextItem(ent->r.currentOrigin, qfalse, qtrue) );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'M') {
+
+                    qboolean firstOne = qtrue;
+                    int i;
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    for ( i = WP_MACHINEGUN; i < WP_NUM_WEAPONS; i++ ) {
+                        if ( !(ent->client->ps.stats[STAT_WEAPONS] & (1 << i )))
+                            continue;
+
+                        if ( 4*ent->client->ps.ammo[i] < BG_FindItemForWeapon(i)->quantity ) {
+                            if ( firstOne ) {
+                                Com_sprintf( text, sizeof(text), buffer, va("%s%s",BG_FindItemForWeapon(i)->shortName,"%s") );
+                                firstOne = qfalse;
+                            }
+                            else
+                                Com_sprintf( text, sizeof(text), buffer, va(" %s%s",BG_FindItemForWeapon(i)->shortName,"%s") );
+                            Q_strncpyz(buffer, text, sizeof(buffer));
+                        }
+                    }
+                    Com_sprintf( text, sizeof(text), buffer, "" );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'P') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    Com_sprintf( text, sizeof(text), buffer, va("%s",ent->client->lastPickup) );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'S') {
+
+                    vec3_t forward, right, up, muzzle, end;
+                    trace_t tr;
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    AngleVectors (ent->client->ps.viewangles, forward, right, up);
+                    CalcMuzzlePoint ( ent, forward, right, up, muzzle );
+                    VectorMA (muzzle, 8192 * 16, forward, end);
+                    trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_ALL);
+
+                    if ( g_entities[tr.entityNum].inuse && g_entities[tr.entityNum].s.eType == ET_ITEM )
+                        Com_sprintf( text, sizeof(text), buffer, g_entities[tr.entityNum].item->shortName );
+                    else
+                        Com_sprintf( text, sizeof(text), buffer, "" );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'T') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    if ( ent->client->lastTarget != -1 ) {
+                        Com_sprintf( text, sizeof(text), buffer, va("%s", g_entities[ent->client->lastTarget].client->pers.netname ) );
+                        Q_strncpyz(buffer, text, sizeof(buffer));
+                    } else {
+                        Com_sprintf( text, sizeof(text), buffer, "NONE" );
+                        Q_strncpyz(buffer, text, sizeof(buffer));
+                    }
+
+                } else if (text[j] == 'U') {
+
+                    int i;
+                    qboolean firstOne = qtrue;
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    for ( i = PW_QUAD; i <= PW_NEUTRALFLAG; i++ ) {
+                        if ( ent->client->ps.powerups[i] > 0 ) {
+                            if ( firstOne ) {
+                                Com_sprintf( text, sizeof(text), buffer, va("%s%s", BG_FindItemForPowerup(i)->shortName, "%s" ));
+                                firstOne = qfalse;
+                            } else
+                                Com_sprintf( text, sizeof(text), buffer, va(" %s%s", BG_FindItemForPowerup(i)->shortName, "%s" ));
+                            Q_strncpyz(buffer, text, sizeof(buffer));
+                        }
+                    }
+                    Com_sprintf( text, sizeof(text), buffer, "" );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                } else if (text[j] == 'W') {
+
+                    buffer[j-1] = '%';
+                    buffer[j] = 's';
+                    if ( ent->client->ps.weapon >= WP_MACHINEGUN && ent->client->ps.weapon < WP_NUM_WEAPONS )
+                        Com_sprintf( text, sizeof(text), buffer, va("%s:^7%i", BG_FindItemForWeapon(ent->client->ps.weapon)->shortName, ent->client->ps.ammo[ ent->client->ps.weapon ]) );
+                    else
+                        Com_sprintf( text, sizeof(text), buffer, "NONE:0" );
+                    Q_strncpyz(buffer, text, sizeof(buffer));
+
+                }
+            }
+        }
+    }
 
     if (target) {
         G_SayTo(ent, target, mode, color, name, text);

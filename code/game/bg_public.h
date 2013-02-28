@@ -638,6 +638,7 @@ typedef struct gitem_s {
 
     char*        precaches;     // string of all models and images this item will use
     char*        sounds;        // string of all sounds this item will use
+    char*       shortName;
 } gitem_t;
 
 // included in both the game dll and the client
