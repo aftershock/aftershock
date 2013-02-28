@@ -517,6 +517,7 @@ typedef struct {
 
     // input state sent to server
     int         weaponSelect;
+    int         weaponSelectList[WP_NUM_WEAPONS];
 
     // auto rotating items
     vec3_t      autoAngles;
@@ -1193,6 +1194,7 @@ extern  vmCvar_t        cg_highlight;
 extern  vmCvar_t        cg_highlightNames;
 extern  vmCvar_t        s_ambient;
 extern  vmCvar_t        cg_hitBeep;
+extern  vmCvar_t        cg_noAmmoChange;
 #ifdef MISSIONPACK
 extern  vmCvar_t        cg_redTeamName;
 extern  vmCvar_t        cg_blueTeamName;

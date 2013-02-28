@@ -192,6 +192,7 @@ vmCvar_t    cg_highlight;
 vmCvar_t    cg_highlightNames;
 vmCvar_t    s_ambient;
 vmCvar_t    cg_hitBeep;
+vmCvar_t    cg_noAmmoChange;
 
 #ifdef MISSIONPACK
 vmCvar_t    cg_redTeamName;
@@ -337,6 +338,7 @@ static cvarTable_t cvarTable[] = {
     { &cg_highlightNames, "cg_highlightNames", "", CVAR_ARCHIVE},
     { &s_ambient, "s_ambient", "1", CVAR_ARCHIVE|CVAR_LATCH},
     { &cg_hitBeep, "cg_hitBeep", "2", CVAR_ARCHIVE},
+    { &cg_noAmmoChange, "cg_noAmmoChange", "1", CVAR_ARCHIVE},
     //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
     { &cg_itemFx, "cg_itemFx", "7", CVAR_ARCHIVE}
 };
