@@ -2505,6 +2505,68 @@ void CG_DrawTimedMenus(void) {
 #endif
 /*
 =================
+CG_ItemAllowed
+=================
+*/
+static qboolean CG_ItemAllowed(int entityNum) {
+    gitem_t* item = &bg_itemlist[ cg_entities[entityNum].currentState.modelindex ];
+    if (item->giType == IT_ARMOR && item->quantity >= 25) {
+        return qtrue;
+    }
+    if (item->giType == IT_HEALTH && item->quantity >= 100) {
+        return qtrue;
+    }
+    if (item->giType == IT_POWERUP) {
+        return qtrue;
+    }
+    return qfalse;
+}
+
+#define RTXPOS  320
+#define RTYPOS  360
+#define RTICONSIZE 32
+/*
+=================
+CG_DrawRespawnTimer
+TODO: this all will be redone when we add SuperHud
+=================
+*/
+static void CG_DrawRespawnTimer(void) {
+    int i;
+    int count=0;
+    int timerList[128];
+    centity_t *cent;
+    char* timeString;
+    int w;
+    if (cgs.clientinfo[cg.clientNum].team != TEAM_SPECTATOR) {
+        return;
+    }
+    for (i=0; i < MAX_GENTITIES; i++) {
+        cent = &cg_entities[i];
+        if (cent->currentState.eType != ET_ITEM) {
+            continue;
+        }
+        if (!CG_ItemAllowed(i)) {
+            continue;
+        }
+        timerList[count] = i;
+        count++;
+    }
+    for (i=0; i < count; i++) {
+        cent = &cg_entities[timerList[i]];
+        CG_DrawPic(RTXPOS - RTICONSIZE*count/2.0f + i*RTICONSIZE, RTYPOS, RTICONSIZE, RTICONSIZE, cg_items[cent->currentState.modelindex].icon);
+        if (cent->currentState.time-cg.time > 0) {
+            timeString = va("%i", (cent->currentState.time-cg.time)/1000+1);
+        } else {
+            timeString = va("*");
+        }
+        w = CG_DrawStrlen ( timeString );
+        CG_DrawStringExt(RTXPOS - RTICONSIZE*count/2.0f + i*RTICONSIZE + RTICONSIZE/2 - w*8/2, RTYPOS + RTICONSIZE, timeString, colorWhite, qfalse, qfalse, 8, 8, 0);
+    }
+}
+
+/*
+=================
 CG_Draw2D
 =================
 */
@@ -2605,6 +2667,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame) {
     if (!cg.scoreBoardShowing) {
         CG_DrawCenterString();
     }
+    CG_DrawRespawnTimer();
 }
 
 

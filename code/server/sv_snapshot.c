@@ -291,7 +291,7 @@ SV_AddEntitiesVisibleFromPoint
 ===============
 */
 static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t* frame,
-                                           snapshotEntityNumbers_t* eNums, qboolean portal) {
+                                           snapshotEntityNumbers_t* eNums, qboolean portal, int clientNum) {
     int     e, i;
     sharedEntity_t* ent;
     svEntity_t*  svEnt;
@@ -355,11 +355,36 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t* fram
                 continue;
         }
 
+        if (ent->r.svFlags & SVF_CLIENTMASKREAL) {
+            if (clientNum >= 32)
+                Com_Error(ERR_DROP, "SVF_CLIENTMASK: clientNum >= 32");
+            if (~ent->r.singleClient & (1 << clientNum))
+                continue;
+        }
+
         svEnt = SV_SvEntityForGentity(ent);
 
         // don't double add an entity through portals
         if (svEnt->snapshotCounter == sv.snapshotCounter) {
             continue;
+        }
+
+        if (ent->r.svFlags & SVF_BROADCASTCLIENTMASK) {
+            if (frame->ps.clientNum >= 32)
+                Com_Error(ERR_DROP, "SVF_BROADCASTCLIENTMASK: clientNum >= 32");
+            if (ent->r.singleClient & (1 << frame->ps.clientNum)) {
+                SV_AddEntToSnapshot(svEnt, ent, eNums);
+                continue;
+            }
+        }
+
+        if (ent->r.svFlags & SVF_BROADCASTCLIENTMASKREAL) {
+            if (clientNum >= 32)
+                Com_Error(ERR_DROP, "SVF_BROADCASTCLIENTMASK: clientNum >= 32");
+            if (ent->r.singleClient & (1 << clientNum)) {
+                SV_AddEntToSnapshot(svEnt, ent, eNums);
+                continue;
+            }
         }
 
         // broadcast entities are always sent
@@ -421,7 +446,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t* fram
                     continue;
                 }
             }
-            SV_AddEntitiesVisibleFromPoint(ent->s.origin2, frame, eNums, qtrue);
+            SV_AddEntitiesVisibleFromPoint(ent->s.origin2, frame, eNums, qtrue, clientNum);
         }
 
     }
@@ -490,7 +515,7 @@ static void SV_BuildClientSnapshot(client_t* client) {
 
     // add all the entities directly visible to the eye, which
     // may include portal entities that merge other viewpoints
-    SV_AddEntitiesVisibleFromPoint(org, frame, &entityNumbers, qfalse);
+    SV_AddEntitiesVisibleFromPoint(org, frame, &entityNumbers, qfalse, client - svs.clients);
 
     // if there were portals visible, there may be out of order entities
     // in the list which will need to be resorted for the delta compression

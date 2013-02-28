@@ -95,6 +95,7 @@ vmCvar_t    g_enableDust;
 vmCvar_t    g_enableBreath;
 vmCvar_t    g_proxMineTimeout;
 #endif
+vmCvar_t    g_respawnTimer;
 
 static cvarTable_t      gameCvarTable[] = {
     // don't override the cheat state set by the system
@@ -178,7 +179,8 @@ static cvarTable_t      gameCvarTable[] = {
     { &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
     { &g_rankings, "g_rankings", "0", 0, 0, qfalse},
-    { &g_itemDrop, "g_itemDrop", "3", 0, 0, qfalse}
+    { &g_itemDrop, "g_itemDrop", "3", 0, 0, qfalse},
+    { &g_respawnTimer, "g_respawnTimer", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse}
 
 };
 

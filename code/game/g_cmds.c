@@ -486,7 +486,35 @@ void BroadcastTeamChange(gclient_t* client, int oldTeam) {
                                       client->pers.netname));
     }
 }
+/*
+=================
+SetSpectatorClientmask
+=================
+*/
+static void SetSpectatorClientmask(void) {
+    int i, mask=0;
+    if (!g_respawnTimer.integer) {
+        return;
+    }
 
+    for (i=0; i < MAX_CLIENTS; i++) {
+        if (!g_entities[i].inuse) {
+                continue;
+        }
+        if (g_entities[i].client->sess.sessionTeam == TEAM_SPECTATOR) {
+            mask |= (1 << i);
+        }
+    }
+    for (i=0; i < MAX_GENTITIES; i++) {
+        if (!g_entities[i].inuse) {
+            continue;
+        }
+        if (g_entities[i].s.eType != ET_ITEM) {
+            continue;
+        }
+        g_entities[i].r.singleClient = mask;
+    }
+}
 /*
 =================
 SetTeam
@@ -623,6 +651,8 @@ void SetTeam(gentity_t* ent, char* s) {
     ClientUserinfoChanged(clientNum);
 
     ClientBegin(clientNum);
+
+    SetSpectatorClientmask();
 }
 
 /*
