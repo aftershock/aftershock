@@ -259,17 +259,25 @@ static void CG_Item(centity_t* cent) {
 
     // items bob up and down continuously
     scale = 0.005 + cent->currentState.number * 0.00001;
-    cent->lerpOrigin[2] += 4 + cos((cg.time + 1000) *  scale) * 4;
+    if (cg_itemFx.integer & 1) {
+        cent->lerpOrigin[2] += 4 + cos((cg.time + 1000) *  scale) * 4;
+    } else {
+        cent->lerpOrigin[2] += 4;
+    }
 
     memset(&ent, 0, sizeof(ent));
-
-    // autorotate at one of two speeds
-    if (item->giType == IT_HEALTH) {
-        VectorCopy(cg.autoAnglesFast, cent->lerpAngles);
-        AxisCopy(cg.autoAxisFast, ent.axis);
+    if (cg_itemFx.integer & 2) {
+        // autorotate at one of two speeds
+        if (item->giType == IT_HEALTH) {
+            VectorCopy(cg.autoAnglesFast, cent->lerpAngles);
+            AxisCopy(cg.autoAxisFast, ent.axis);
+        } else {
+            VectorCopy(cg.autoAngles, cent->lerpAngles);
+            AxisCopy(cg.autoAxis, ent.axis);
+        }
     } else {
-        VectorCopy(cg.autoAngles, cent->lerpAngles);
-        AxisCopy(cg.autoAxis, ent.axis);
+        cent->lerpAngles[0] = cent->lerpAngles[1] = cent->lerpAngles[2] = 0;
+        AnglesToAxis(cent->lerpAngles, ent.axis);
     }
 
     wi = NULL;
@@ -308,7 +316,7 @@ static void CG_Item(centity_t* cent) {
 
     // if just respawned, slowly scale up
     msec = cg.time - cent->miscTime;
-    if (msec >= 0 && msec < ITEM_SCALEUP_TIME) {
+    if (msec >= 0 && msec < ITEM_SCALEUP_TIME && cg_itemFx.integer & 4) {
         frac = (float)msec / ITEM_SCALEUP_TIME;
         VectorScale(ent.axis[0], frac, ent.axis[0]);
         VectorScale(ent.axis[1], frac, ent.axis[1]);
