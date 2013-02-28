@@ -1122,6 +1122,8 @@ typedef struct srfGridMesh_s {
     // BSP VBO offsets
     int             firstVert;
     int             firstIndex;
+    glIndex_t       minIndex;
+    glIndex_t       maxIndex;
 
     // static render data
     VBO_t*          vbo;        // points to bsp model VBO
@@ -1150,6 +1152,8 @@ typedef struct {
     // BSP VBO offsets
     int             firstVert;
     int             firstIndex;
+    glIndex_t       minIndex;
+    glIndex_t       maxIndex;
 
     // static render data
     VBO_t*          vbo;        // points to bsp model VBO
@@ -1178,6 +1182,8 @@ typedef struct {
     // BSP VBO offsets
     int             firstVert;
     int             firstIndex;
+    glIndex_t       minIndex;
+    glIndex_t       maxIndex;
 
     // static render data
     VBO_t*          vbo;        // points to bsp model VBO
@@ -1235,6 +1241,8 @@ typedef struct srfVBOMesh_s {
     int             numIndexes;
     int             numVerts;
     int             firstIndex;
+    glIndex_t       minIndex;
+    glIndex_t       maxIndex;
 
     // static render data
     VBO_t*          vbo;
@@ -1250,6 +1258,8 @@ typedef struct srfVBOMDVMesh_s {
     // backEnd stats
     int             numIndexes;
     int             numVerts;
+    glIndex_t       minIndex;
+    glIndex_t       maxIndex;
 
     // static render data
     VBO_t*          vbo;
@@ -2320,11 +2330,15 @@ typedef struct shaderCommands_s {
     int         firstIndex;
     int         numIndexes;
     int         numVertexes;
+    glIndex_t   minIndex;
+    glIndex_t   maxIndex;
 
     int         multiDrawPrimitives;
     GLsizei     multiDrawNumIndexes[MAX_MULTIDRAW_PRIMITIVES];
-    GLvoid*     multiDrawFirstIndex[MAX_MULTIDRAW_PRIMITIVES];
-    GLvoid*     multiDrawLastIndex[MAX_MULTIDRAW_PRIMITIVES];
+    glIndex_t*  multiDrawFirstIndex[MAX_MULTIDRAW_PRIMITIVES];
+    glIndex_t*  multiDrawLastIndex[MAX_MULTIDRAW_PRIMITIVES];
+    glIndex_t   multiDrawMinIndex[MAX_MULTIDRAW_PRIMITIVES];
+    glIndex_t   multiDrawMaxIndex[MAX_MULTIDRAW_PRIMITIVES];
 
     // info extracted from current shader
     int         numPasses;
@@ -2339,7 +2353,7 @@ void RB_EndSurface(void);
 void RB_CheckOverflow(int verts, int indexes);
 #define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
 
-void R_DrawElementsVBO(int numIndexes, int firstIndex);
+void R_DrawElementsVBO(int numIndexes, glIndex_t firstIndex, glIndex_t minIndex, glIndex_t maxIndex);
 void RB_StageIteratorGeneric(void);
 void RB_StageIteratorSky(void);
 void RB_StageIteratorVertexLitTexture(void);
