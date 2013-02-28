@@ -600,6 +600,9 @@ void AddTournamentPlayer(void) {
         if (client->sess.sessionTeam != TEAM_SPECTATOR) {
             continue;
         }
+        if (G_IsSpeconly(client->sess.spectatorState)) {
+            continue;
+        }
         // never select the dedicated follow or scoreboard clients
         if (client->sess.spectatorState == SPECTATOR_SCOREBOARD ||
                 client->sess.spectatorClient < 0) {
@@ -925,7 +928,7 @@ If a new client connects, this will be called after the spawn function.
 */
 void MoveClientToIntermission(gentity_t* ent) {
     // take out of follow mode if needed
-    if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
+    if (G_IsFollowing(ent->client->sess.spectatorState)) {
         StopFollowing(ent);
     }
 

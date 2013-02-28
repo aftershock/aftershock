@@ -1274,7 +1274,7 @@ void ClientDisconnect(int clientNum) {
     // stop any following clients
     for (i = 0 ; i < level.maxclients ; i++) {
         if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR
-                && level.clients[i].sess.spectatorState == SPECTATOR_FOLLOW
+                && G_IsFollowing(level.clients[i].sess.spectatorState)
                 && level.clients[i].sess.spectatorClient == clientNum) {
             StopFollowing(&g_entities[i]);
         }

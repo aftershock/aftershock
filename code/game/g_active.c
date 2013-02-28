@@ -319,7 +319,7 @@ void SpectatorThink(gentity_t* ent, usercmd_t* ucmd) {
 
     client = ent->client;
 
-    if (client->sess.spectatorState != SPECTATOR_FOLLOW) {
+    if (G_IsNotFollowing(client->sess.spectatorState)) {
         client->ps.pm_type = PM_SPECTATOR;
         client->ps.speed = 400; // faster than normal
 
@@ -767,7 +767,7 @@ void ClientThink_real(gentity_t* ent) {
     msec = ucmd->serverTime - client->ps.commandTime;
     // following others may result in bad times, but we still want
     // to check for follow toggles
-    if (msec < 1 && client->sess.spectatorState != SPECTATOR_FOLLOW) {
+    if (msec < 1 && G_IsNotFollowing(client->sess.spectatorState)) {
         return;
     }
     if (msec > 200) {
@@ -1039,7 +1039,7 @@ void SpectatorClientEndFrame(gentity_t* ent) {
     gclient_t*   cl;
 
     // if we are doing a chase cam or a remote view, grab the latest info
-    if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
+    if (G_IsFollowing(ent->client->sess.spectatorState)) {
         int     clientNum, flags;
 
         clientNum = ent->client->sess.spectatorClient;
@@ -1061,7 +1061,11 @@ void SpectatorClientEndFrame(gentity_t* ent) {
             } else {
                 // drop them to free spectators unless they are dedicated camera followers
                 if (ent->client->sess.spectatorClient >= 0) {
-                    ent->client->sess.spectatorState = SPECTATOR_FREE;
+                    if (G_IsSpeconly(ent->client->sess.spectatorState)) {
+                        ent->client->sess.spectatorState = SPECONLY_FREE;
+                    } else {
+                        ent->client->sess.spectatorState = SPECTATOR_FREE;
+                    }
                     ClientBegin(ent->client - level.clients);
                 }
             }

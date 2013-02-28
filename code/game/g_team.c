@@ -1113,7 +1113,7 @@ void TeamplayInfoMessage(gentity_t* ent) {
 
     // send team info to spectator for team of followed client
     if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-        if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW
+        if (G_IsNotFollowing(ent->client->sess.spectatorState)
                 || ent->client->sess.spectatorClient < 0) {
             return;
         }
