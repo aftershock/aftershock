@@ -193,6 +193,10 @@ vmCvar_t    cg_highlightNames;
 vmCvar_t    s_ambient;
 vmCvar_t    cg_hitBeep;
 vmCvar_t    cg_noAmmoChange;
+vmCvar_t    cg_crosshairPulse;
+vmCvar_t    cg_crosshairColor;
+vmCvar_t    cg_crosshairHitColor;
+vmCvar_t    cg_crosshairHitColorStyle;
 
 #ifdef MISSIONPACK
 vmCvar_t    cg_redTeamName;
@@ -339,6 +343,11 @@ static cvarTable_t cvarTable[] = {
     { &s_ambient, "s_ambient", "1", CVAR_ARCHIVE|CVAR_LATCH},
     { &cg_hitBeep, "cg_hitBeep", "2", CVAR_ARCHIVE},
     { &cg_noAmmoChange, "cg_noAmmoChange", "1", CVAR_ARCHIVE},
+    { &cg_hitBeep, "cg_hitBeep", "2", CVAR_ARCHIVE},
+    { &cg_crosshairPulse, "cg_crosshairPulse", "2", CVAR_ARCHIVE},
+    { &cg_crosshairColor, "cg_crosshairColor", "3", CVAR_ARCHIVE},
+    { &cg_crosshairHitColor, "cg_crosshairHitColor", "1", CVAR_ARCHIVE},
+    { &cg_crosshairHitColorStyle, "cg_crosshairHitColorStyle", "2", CVAR_ARCHIVE},
     //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
     { &cg_itemFx, "cg_itemFx", "7", CVAR_ARCHIVE}
 };

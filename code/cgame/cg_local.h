@@ -650,6 +650,9 @@ typedef struct {
     qboolean        testGun;
 
     qboolean    holdWeaponDrop;
+    // Crosshair-pulse on damage done
+    int             hitTime;
+    int             hitDamage;
 
 } cg_t;
 
@@ -1195,6 +1198,10 @@ extern  vmCvar_t        cg_highlightNames;
 extern  vmCvar_t        s_ambient;
 extern  vmCvar_t        cg_hitBeep;
 extern  vmCvar_t        cg_noAmmoChange;
+extern  vmCvar_t        cg_crosshairPulse;
+extern  vmCvar_t        cg_crosshairColor;
+extern  vmCvar_t        cg_crosshairHitColor;
+extern  vmCvar_t        cg_crosshairHitColorStyle;
 #ifdef MISSIONPACK
 extern  vmCvar_t        cg_redTeamName;
 extern  vmCvar_t        cg_blueTeamName;

@@ -304,34 +304,34 @@ void CG_CheckLocalSounds(playerState_t* ps, playerState_t* ops) {
     }
 
     // hit changes
-    if ((ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS]) && cg_hitBeep.integer) {
+    if (ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS]) {
+        cg.hitTime = cg.time;
+        cg.hitDamage = ps->persistant[PERS_DAMAGE] - ops->persistant[PERS_DAMAGE];
         if (cg_hitBeep.integer == 2) {
-            damage = ps->persistant[PERS_DAMAGE] - ops->persistant[PERS_DAMAGE];
-            if (damage <= 20) {
+            if (cg.hitDamage <= 20) {
                 trap_S_StartLocalSound(cgs.media.hitSound[0], CHAN_LOCAL_SOUND);
-            } else if (damage <= 40) {
+            } else if (cg.hitDamage <= 40) {
                 trap_S_StartLocalSound(cgs.media.hitSound[1], CHAN_LOCAL_SOUND);
-            } else if (damage <= 60) {
+            } else if (cg.hitDamage <= 60) {
                 trap_S_StartLocalSound(cgs.media.hitSound[2], CHAN_LOCAL_SOUND);
-            } else if (damage <= 80) {
+            } else if (cg.hitDamage <= 80) {
                 trap_S_StartLocalSound(cgs.media.hitSound[3], CHAN_LOCAL_SOUND);
             } else {
                 trap_S_StartLocalSound(cgs.media.hitSound[4], CHAN_LOCAL_SOUND);
             }
         } else if (cg_hitBeep.integer == 3) {
-            damage = ps->persistant[PERS_DAMAGE] - ops->persistant[PERS_DAMAGE];
-            if (damage <= 20) {
+            if (cg.hitDamage <= 20) {
                 trap_S_StartLocalSound(cgs.media.hitSound[4], CHAN_LOCAL_SOUND);
-            } else if (damage <= 40) {
+            } else if (cg.hitDamage <= 40) {
                 trap_S_StartLocalSound(cgs.media.hitSound[3], CHAN_LOCAL_SOUND);
-            } else if (damage <= 60) {
+            } else if (cg.hitDamage <= 60) {
                 trap_S_StartLocalSound(cgs.media.hitSound[2], CHAN_LOCAL_SOUND);
-            } else if (damage <= 80) {
+            } else if (cg.hitDamage <= 80) {
                 trap_S_StartLocalSound(cgs.media.hitSound[1], CHAN_LOCAL_SOUND);
             } else {
                 trap_S_StartLocalSound(cgs.media.hitSound[0], CHAN_LOCAL_SOUND);
             }
-        } else {
+        } else if (cg_hitBeep.integer) {
             trap_S_StartLocalSound(cgs.media.hitSound[2], CHAN_LOCAL_SOUND);
         }
     } else if (ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] && cg_hitBeep.integer) {
