@@ -1842,7 +1842,51 @@ CROSSHAIR
 
 ================================================================================
 */
+//damageDone*timefactor = pulsetime
+#define DAMAGEPULSE_TIME_FACTOR 10
+#define DAMAGEPULSE_DECREASE_TIME 200
+#define DAMAGEPULSE_RADIUS_FACTOR (1/200.0f)
+#define DAMAGECOLOR_TIME 500
 
+/*
+=================
+CG_CrosshairColor
+=================
+*/
+static void CG_CrosshairColor(vec4_t color) {
+    int damageTime = cg.hitDamage * DAMAGEPULSE_TIME_FACTOR;
+    float f = cg.time - cg.hitTime;
+
+    color[3] = 1;
+    if (damageTime > 1000) {
+        damageTime = 1000;
+    }
+    if ( cg_crosshairHitColorStyle.integer == 3 || cg_crosshairHitColorStyle.integer == 4) {
+        damageTime = DAMAGECOLOR_TIME;
+    }
+
+    if (!cg_crosshairHitColor.integer || cg_crosshairHitColorStyle.integer > 4 || cg_crosshairHitColorStyle.integer < 1) {
+        VectorCopy(g_color_table[ColorIndex(*(cg_crosshairColor.string))], color);
+        return;
+    }
+    if (cg_crosshairHitColorStyle.integer & 1) {
+        if (cg_crosshairHitColor.integer && f < damageTime && f > 0) {
+            VectorCopy(g_color_table[ColorIndex(*(cg_crosshairHitColor.string))], color);
+        }
+    } else {
+        if (cg_crosshairHitColor.integer && f < damageTime && f > 0) {
+            vec3_t toColor;
+            vec3_t fromColor;
+            float scale = cg.hitDamage/100.0f;
+            VectorCopy(g_color_table[ColorIndex(*(cg_crosshairHitColor.string))], toColor);
+            VectorCopy(g_color_table[ColorIndex(*(cg_crosshairColor.string))], fromColor);
+            color[0] = fromColor[0] + scale*(toColor[0]-fromColor[0]);
+            color[1] = fromColor[1] + scale*(toColor[1]-fromColor[1]);
+            color[2] = fromColor[2] + scale*(toColor[2]-fromColor[2]);
+        }
+    }
+    VectorCopy(g_color_table[ColorIndex(*(cg_crosshairColor.string))], color);
+}
 
 /*
 =================
@@ -1868,6 +1912,42 @@ static void CG_DrawCrosshair(void) {
         return;
     }
 
+    w = h = cg_crosshairSize.value;
+    if (cg_crosshairPulse.integer == 1) {
+        // pulse the size of the crosshair when picking up items
+        f = cg.time - cg.itemPickupBlendTime;
+        if (f > 0 && f < ITEM_BLOB_TIME) {
+            f /= ITEM_BLOB_TIME;
+            w *= (1 + f);
+            h *= (1 + f);
+        }
+    } else if (cg_crosshairPulse.integer == 2) {
+        // pulse the size of the crosshair when dealing damage
+        int damageTime = cg.hitDamage * DAMAGEPULSE_TIME_FACTOR;
+        float damageRadius = cg.hitDamage*DAMAGEPULSE_RADIUS_FACTOR;
+
+        if (damageTime > 1000) {
+            damageTime = 1000;
+        }
+        if (damageRadius > 1.0) {
+            damageRadius = 1.0;
+        }
+
+        f = cg.time - cg.hitTime;
+
+        if (f > 0 && f < damageTime) {
+            w *= (1 + damageRadius);
+            h *= (1 + damageRadius);
+        } else if (f >= damageTime && f < damageTime + DAMAGEPULSE_DECREASE_TIME) {
+            f -= damageTime;
+            f /= DAMAGEPULSE_DECREASE_TIME;
+            if (f < damageRadius) {
+                w *= (1 + damageRadius - f);
+                h *= (1 + damageRadius - f);
+            }
+        }
+    }
+
     // set color based on health
     if (cg_crosshairHealth.integer) {
         vec4_t      hcolor;
@@ -1875,17 +1955,9 @@ static void CG_DrawCrosshair(void) {
         CG_ColorForHealth(hcolor);
         trap_R_SetColor(hcolor);
     } else {
-        trap_R_SetColor(NULL);
-    }
-
-    w = h = cg_crosshairSize.value;
-
-    // pulse the size of the crosshair when picking up items
-    f = cg.time - cg.itemPickupBlendTime;
-    if (f > 0 && f < ITEM_BLOB_TIME) {
-        f /= ITEM_BLOB_TIME;
-        w *= (1 + f);
-        h *= (1 + f);
+        vec4_t      color;
+        CG_CrosshairColor(color);
+        trap_R_SetColor(color);
     }
 
     x = cg_crosshairX.integer;

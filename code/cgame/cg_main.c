@@ -184,6 +184,10 @@ vmCvar_t    cg_oldRocket;
 vmCvar_t    cg_oldPlasma;
 vmCvar_t    cg_trueLightning;
 vmCvar_t    cg_hitBeep;
+vmCvar_t    cg_crosshairPulse;
+vmCvar_t    cg_crosshairColor;
+vmCvar_t    cg_crosshairHitColor;
+vmCvar_t    cg_crosshairHitColorStyle;
 
 #ifdef MISSIONPACK
 vmCvar_t    cg_redTeamName;
@@ -318,7 +322,11 @@ static cvarTable_t cvarTable[] = {
     { &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
     { &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
     { &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
-    { &cg_hitBeep, "cg_hitBeep", "2", CVAR_ARCHIVE}
+    { &cg_hitBeep, "cg_hitBeep", "2", CVAR_ARCHIVE},
+    { &cg_crosshairPulse, "cg_crosshairPulse", "2", CVAR_ARCHIVE},
+    { &cg_crosshairColor, "cg_crosshairColor", "3", CVAR_ARCHIVE},
+    { &cg_crosshairHitColor, "cg_crosshairHitColor", "1", CVAR_ARCHIVE},
+    { &cg_crosshairHitColorStyle, "cg_crosshairHitColorStyle", "2", CVAR_ARCHIVE}
     //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 

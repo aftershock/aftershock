@@ -643,6 +643,10 @@ typedef struct {
     char            testModelName[MAX_QPATH];
     qboolean        testGun;
 
+    // Crosshair-pulse on damage done
+    int             hitTime;
+    int             hitDamage;
+
 } cg_t;
 
 
@@ -1178,6 +1182,10 @@ extern  vmCvar_t        cg_oldRocket;
 extern  vmCvar_t        cg_oldPlasma;
 extern  vmCvar_t        cg_trueLightning;
 extern  vmCvar_t        cg_hitBeep;
+extern  vmCvar_t        cg_crosshairPulse;
+extern  vmCvar_t        cg_crosshairColor;
+extern  vmCvar_t        cg_crosshairHitColor;
+extern  vmCvar_t        cg_crosshairHitColorStyle;
 #ifdef MISSIONPACK
 extern  vmCvar_t        cg_redTeamName;
 extern  vmCvar_t        cg_blueTeamName;
