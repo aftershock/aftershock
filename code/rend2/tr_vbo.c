@@ -53,8 +53,7 @@ VBO_t*          R_CreateVBO(const char* name, byte* vertexes, int vertexesSize, 
         ri.Error(ERR_DROP, "R_CreateVBO: MAX_VBOS hit\n");
     }
 
-    // make sure the render thread is stopped
-    R_SyncRenderThread();
+    R_IssuePendingRenderCommands();
 
     vbo = tr.vbos[tr.numVBOs] = ri.Hunk_Alloc(sizeof(*vbo), h_low);
     tr.numVBOs++;
@@ -119,8 +118,7 @@ VBO_t*          R_CreateVBO2(const char* name, int numVertexes, srfVert_t* verts
         ri.Error(ERR_DROP, "R_CreateVBO2: MAX_VBOS hit\n");
     }
 
-    // make sure the render thread is stopped
-    R_SyncRenderThread();
+    R_IssuePendingRenderCommands();
 
     vbo = tr.vbos[tr.numVBOs] = ri.Hunk_Alloc(sizeof(*vbo), h_low);
     tr.numVBOs++;
@@ -426,8 +424,7 @@ IBO_t*          R_CreateIBO(const char* name, byte* indexes, int indexesSize, vb
         ri.Error(ERR_DROP, "R_CreateIBO: MAX_IBOS hit\n");
     }
 
-    // make sure the render thread is stopped
-    R_SyncRenderThread();
+    R_IssuePendingRenderCommands();
 
     ibo = tr.ibos[tr.numIBOs] = ri.Hunk_Alloc(sizeof(*ibo), h_low);
     tr.numIBOs++;
@@ -492,8 +489,7 @@ IBO_t*          R_CreateIBO2(const char* name, int numTriangles, srfTriangle_t* 
         ri.Error(ERR_DROP, "R_CreateIBO2: MAX_IBOS hit\n");
     }
 
-    // make sure the render thread is stopped
-    R_SyncRenderThread();
+    R_IssuePendingRenderCommands();
 
     ibo = tr.ibos[tr.numIBOs] = ri.Hunk_Alloc(sizeof(*ibo), h_low);
     tr.numIBOs++;

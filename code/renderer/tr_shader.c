@@ -1639,7 +1639,7 @@ sortedIndex.
 ==============
 */
 static void FixRenderCommandList(int newShader) {
-    renderCommandList_t* cmdList = &backEndData[tr.smpFrame]->commands;
+    renderCommandList_t* cmdList = &backEndData->commands;
 
     if (cmdList) {
         const void* curCmd = cmdList->cmds;
@@ -2227,12 +2227,6 @@ shader_t* R_FindShader(const char* name, int lightmapIndex, qboolean mipRawImage
         }
     }
 
-    // make sure the render thread is stopped, because we are probably
-    // going to have to upload an image
-    if (r_smp->integer) {
-        R_SyncRenderThread();
-    }
-
     // clear the global shader
     Com_Memset(&shader, 0, sizeof(shader));
     Com_Memset(&stages, 0, sizeof(stages));
@@ -2361,12 +2355,6 @@ qhandle_t RE_RegisterShaderFromImage(const char* name, int lightmapIndex, image_
             // match found
             return sh->index;
         }
-    }
-
-    // make sure the render thread is stopped, because we are probably
-    // going to have to upload an image
-    if (r_smp->integer) {
-        R_SyncRenderThread();
     }
 
     // clear the global shader
