@@ -607,6 +607,8 @@ void SP_worldspawn(void) {
         level.warmupTime = -1;
         trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
         G_LogPrintf("Warmup:\n");
+        trap_Cvar_Set("g_blueLocked", "0");
+        trap_Cvar_Set("g_redLocked", "0");
     }
 
 }

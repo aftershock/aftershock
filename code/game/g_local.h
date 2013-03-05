@@ -773,6 +773,9 @@ extern  vmCvar_t    g_respawnTimer;
 extern  vmCvar_t    g_timeoutTime;
 extern  vmCvar_t    g_timeouts;
 extern  vmCvar_t    g_teamTimeouts;
+extern  vmCvar_t    g_teamLock;
+extern  vmCvar_t    g_redLocked;
+extern  vmCvar_t    g_blueLocked;
 
 void    trap_Print(const char* text);
 void    trap_Error(const char* text) __attribute__((noreturn));
