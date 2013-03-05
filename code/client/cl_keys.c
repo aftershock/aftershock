@@ -795,7 +795,7 @@ int Key_StringToKeynum(char* str) {
         return -1;
     }
     if (!str[1]) {
-        return str[0];
+        return tolower(str[0]);
     }
 
     // check for hex code
