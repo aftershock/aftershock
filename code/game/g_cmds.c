@@ -548,6 +548,17 @@ void SetTeam(gentity_t* ent, char* s) {
         team = TEAM_SPECTATOR;
     }
 
+    if (g_teamLock.integer) {
+        if (team == TEAM_BLUE && g_blueLocked.integer) {
+            trap_SendServerCommand(clientNum, "cp \"Blue team is locked.\n\"");
+            return;
+        }
+        if (team == TEAM_RED && g_redLocked.integer) {
+            trap_SendServerCommand(clientNum, "cp \"Red team is locked.\n\"");
+            return;
+        }
+    }
+
     //
     // decide if we will allow the change
     //
@@ -1231,7 +1242,7 @@ void Cmd_CallVote_f(gentity_t* ent) {
     } else if (!Q_stricmp(arg1, "g_gametype")) {
     } else if (!Q_stricmp(arg1, "kick")) {
     } else if (!Q_stricmp(arg1, "clientkick")) {
-    } else if (!Q_stricmp(arg1, "g_doWarmup")) {
+    //} else if (!Q_stricmp(arg1, "g_doWarmup")) {
     } else if (!Q_stricmp(arg1, "timelimit")) {
     } else if (!Q_stricmp(arg1, "fraglimit")) {
     } else {
@@ -1571,6 +1582,70 @@ void Cmd_Stats_f(gentity_t* ent) {
 
 /*
 =================
+Cmd_Stats_f
+=================
+*/
+void Cmd_Lock_f(gentity_t* ent) {
+    if (g_gametype.integer < GT_TEAM) {
+        trap_SendServerCommand(-1, "print \"Teamlock only allowed in teamgames\n\"");
+        return;
+    }
+    if (!g_teamLock.integer) {
+        trap_SendServerCommand(-1, "print \"Teamlock not allowed on this server\n\"");
+        return;
+    }
+    if (g_teamLock.integer == 2 && !ent->client->sess.teamLeader) {
+        trap_SendServerCommand(-1, "print \"Only the teamleader can lock the team\n\"");
+        return;
+    }
+    if (g_teamLock.integer == 3 && qfalse /*client not referee*/) {
+        trap_SendServerCommand(-1, "print \"Only a referee can lock the teams\n\"");
+        return;
+    }
+    if (ent->client->sess.sessionTeam == TEAM_RED && !g_redLocked.integer) {
+        trap_Cvar_Set("g_redLocked", "1");
+        trap_SendServerCommand(-1, "print \"^1RED team locked\n\"");
+    }
+    else if (ent->client->sess.sessionTeam == TEAM_BLUE && !g_blueLocked.integer) {
+        trap_Cvar_Set("g_blueLocked", "1");
+        trap_SendServerCommand(-1, "print \"^4BLUE team locked\n\"");
+    }
+}
+
+/*
+=================
+Cmd_Stats_f
+=================
+*/
+void Cmd_Unlock_f(gentity_t* ent) {
+    if (g_gametype.integer < GT_TEAM) {
+        trap_SendServerCommand(-1, "print \"Teamlock only allowed in teamgames\n\"");
+        return;
+    }
+    if (!g_teamLock.integer) {
+        trap_SendServerCommand(-1, "print \"Teamlock not allowed on this server\n\"");
+        return;
+    }
+    if (g_teamLock.integer == 2 && !ent->client->sess.teamLeader) {
+        trap_SendServerCommand(-1, "print \"Only the teamleader can unlock the team\n\"");
+        return;
+    }
+    if (g_teamLock.integer == 3 && qfalse /*client not referee*/) {
+        trap_SendServerCommand(-1, "print \"Only a referee can unlock the teams\n\"");
+        return;
+    }
+    if (ent->client->sess.sessionTeam == TEAM_RED && g_redLocked.integer) {
+        trap_Cvar_Set("g_redLocked", "0");
+        trap_SendServerCommand(-1, "print \"^1RED team unlocked\n\"");
+    }
+    else if (ent->client->sess.sessionTeam == TEAM_BLUE && g_blueLocked.integer) {
+        trap_Cvar_Set("g_blueLocked", "0");
+        trap_SendServerCommand(-1, "print \"^4BLUE team unlocked\n\"");
+    }
+}
+
+/*
+=================
 ClientCommand
 =================
 */
@@ -1677,6 +1752,10 @@ void ClientCommand(int clientNum) {
         Cmd_SetViewpos_f(ent);
     else if (Q_stricmp(cmd, "stats") == 0)
         Cmd_Stats_f(ent);
+    else if (Q_stricmp(cmd, "lock") == 0)
+        Cmd_Lock_f(ent);
+    else if (Q_stricmp(cmd, "unlock") == 0)
+        Cmd_Unlock_f(ent);
     else
         trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

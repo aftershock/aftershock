@@ -81,6 +81,9 @@ vmCvar_t    pmove_fixed;
 vmCvar_t    pmove_msec;
 vmCvar_t    g_rankings;
 vmCvar_t    g_listEntity;
+vmCvar_t    g_teamLock;
+vmCvar_t    g_redLocked;
+vmCvar_t    g_blueLocked;
 #ifdef MISSIONPACK
 vmCvar_t    g_obeliskHealth;
 vmCvar_t    g_obeliskRegenPeriod;
@@ -124,8 +127,8 @@ static cvarTable_t      gameCvarTable[] = {
     { &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
     { &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
 
-    { &g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue  },
-    { &g_doWarmup, "g_doWarmup", "0", CVAR_ARCHIVE, 0, qtrue  },
+    { &g_warmup, "g_warmup", "15", CVAR_ARCHIVE, 0, qtrue  },
+    { &g_doWarmup, "g_doWarmup", "1", CVAR_CHEAT, 0, qtrue  },
     { &g_logfile, "g_log", "games.log", CVAR_ARCHIVE, 0, qfalse  },
     { &g_logfileSync, "g_logsync", "0", CVAR_ARCHIVE, 0, qfalse  },
 
@@ -177,7 +180,10 @@ static cvarTable_t      gameCvarTable[] = {
     { &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
     { &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
-    { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
+    { &g_rankings, "g_rankings", "0", 0, 0, qfalse},
+    { &g_teamLock, "g_teamLock", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse},
+    { &g_redLocked, "g_redLocked", "0", CVAR_TEMP, 0, qfalse},
+    { &g_blueLocked, "g_blueLocked", "0", CVAR_TEMP, 0, qfalse}
 
 };
 
@@ -1762,6 +1768,18 @@ void G_RunFrame(int levelTime) {
 
     // get any cvar changes
     G_UpdateCvars();
+
+    // check for empty teams and reset teamlock, dont do it right after restart
+    if (g_gametype.integer >= GT_TEAM && (level.time - level.startTime) > 1000) {
+        if (g_redLocked.integer && TeamCount(-1, TEAM_RED) == 0) {
+            trap_Cvar_Set("g_redLocked", "0");
+            trap_SendServerCommand(-1, "print \"^1RED team unlocked\n\"");
+        }
+        if (g_blueLocked.integer && TeamCount(-1, TEAM_BLUE) == 0) {
+            trap_Cvar_Set("g_blueLocked", "0");
+            trap_SendServerCommand(-1, "print \"^4BLUE team unlocked\n\"");
+        }
+    }
 
     //
     // go through all allocated objects
