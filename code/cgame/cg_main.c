@@ -197,6 +197,7 @@ vmCvar_t    cg_crosshairPulse;
 vmCvar_t    cg_crosshairColor;
 vmCvar_t    cg_crosshairHitColor;
 vmCvar_t    cg_crosshairHitColorStyle;
+vmCvar_t    cg_mapconfigs;
 
 #ifdef MISSIONPACK
 vmCvar_t    cg_redTeamName;
@@ -348,6 +349,7 @@ static cvarTable_t cvarTable[] = {
     { &cg_crosshairColor, "cg_crosshairColor", "3", CVAR_ARCHIVE},
     { &cg_crosshairHitColor, "cg_crosshairHitColor", "1", CVAR_ARCHIVE},
     { &cg_crosshairHitColorStyle, "cg_crosshairHitColorStyle", "2", CVAR_ARCHIVE},
+    { &cg_mapconfigs, "cg_mapconfigs", "0", CVAR_ARCHIVE},
     //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
     { &cg_itemFx, "cg_itemFx", "7", CVAR_ARCHIVE}
 };
@@ -1869,6 +1871,90 @@ void CG_AssetCache(void) {
     cgDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip(ASSET_SLIDER_THUMB);
 }
 #endif
+
+#define MAX_MAPCONFIG_LENGTH 16384
+/*
+=================
+CG_LoadMapconfig
+
+=================
+*/
+static void CG_LoadMapconfig(qboolean defaultConfig) {
+    fileHandle_t    f;
+    char* filename;
+    char* buf;
+    int len;
+    char config[MAX_MAPCONFIG_LENGTH];
+    char mapname[64];
+
+    if (!cg_mapconfigs.integer) {
+        return;
+    }
+
+    if (!defaultConfig) {
+        strcpy(mapname, cgs.mapname);
+        filename = strchr( mapname, '/' );
+        filename++;
+        buf = strstr( filename, ".bsp");
+        buf[0] = '\0';
+
+        filename = va("mapconfigs/%s.cfg", filename );
+    } else {
+        filename = "mapconfigs/default.cfg";
+    }
+
+    len = trap_FS_FOpenFile( filename, &f, FS_READ );
+
+    if( len <= 0 ){
+        if (!defaultConfig) {
+            CG_Printf("File %s not found, trying to exec mapconfigs/default.cfg\n", filename);
+            CG_LoadMapconfig(qtrue);
+        } else {
+            CG_Printf("File %s not found\n", filename);
+        }
+        trap_FS_FCloseFile(f);
+        return;
+    }
+
+    if(len > MAX_MAPCONFIG_LENGTH) {
+        CG_Printf("File %s too long, max length is %d\n", filename, MAX_MAPCONFIG_LENGTH);
+        if (!defaultConfig) {
+            CG_Printf("Trying to exec mapconfigs/default.cfg\n");
+            CG_LoadMapconfig(qtrue);
+        }
+        trap_FS_FCloseFile(f);
+        return;
+    }
+
+    trap_FS_Read(config, len, f);
+    trap_FS_FCloseFile(f);
+
+    buf = strstr(config, "vid_restart");
+    if (buf) {
+        CG_Printf("File %s contains a vid_restart, subsystem restarts are not allowed in mapconfigs\n", filename);
+        if (!defaultConfig) {
+            CG_Printf("Trying to exec mapconfigs/default.cfg\n");
+            CG_LoadMapconfig(qtrue);
+        }
+        return;
+    }
+
+    buf = strstr(config, "snd_restart");
+    if (buf) {
+        CG_Printf("File %s contains a snd_restart, subsystem restarts are not allowed in mapconfigs\n", filename);
+        if (!defaultConfig) {
+            CG_Printf("Trying to exec mapconfigs/default.cfg\n");
+            CG_LoadMapconfig(qtrue);
+        }
+        return;
+    }
+
+    trap_SendConsoleCommand(va("exec %s;", filename));
+
+    return;
+}
+
+
 /*
 =================
 CG_Init
@@ -1927,6 +2013,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum) {
     cgs.levelStartTime = atoi(s);
 
     CG_ParseServerinfo();
+    CG_LoadMapconfig(qfalse);
 
     // load the new map
     CG_LoadingString("collision map");

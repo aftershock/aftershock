@@ -1202,6 +1202,7 @@ extern  vmCvar_t        cg_crosshairPulse;
 extern  vmCvar_t        cg_crosshairColor;
 extern  vmCvar_t        cg_crosshairHitColor;
 extern  vmCvar_t        cg_crosshairHitColorStyle;
+extern  vmCvar_t        cg_mapconfigs;
 #ifdef MISSIONPACK
 extern  vmCvar_t        cg_redTeamName;
 extern  vmCvar_t        cg_blueTeamName;
