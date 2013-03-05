@@ -2172,7 +2172,7 @@ char** FS_ListFilteredFiles(const char* path, const char* extension, char* filte
 
                     temp = pathLength;
                     if (pathLength) {
-                        temp++;     // include the '/'
+                        temp++; // include the '/'
                     }
                     nfiles = FS_AddFileToList(name + temp, list, nfiles);
                 }
