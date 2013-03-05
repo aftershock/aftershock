@@ -1214,6 +1214,10 @@ static void RB_IterateStagesGeneric(shaderCommands_t* input) {
                     index |= LIGHTDEF_ENTITY;
                 }
 
+                if (pStage->stateBits & GLS_ATEST_BITS) {
+                    index |= LIGHTDEF_USE_TCGEN_AND_TCMOD;
+                }
+
                 sp = &pStage->glslShaderGroup[index];
             } else {
                 int shaderAttribs = 0;
@@ -1224,6 +1228,10 @@ static void RB_IterateStagesGeneric(shaderCommands_t* input) {
 
                 if (glState.vertexAttribsInterpolation > 0.0f && backEnd.currentEntity && backEnd.currentEntity != &tr.worldEntity) {
                     shaderAttribs |= GENERICDEF_USE_VERTEX_ANIMATION;
+                }
+
+                if (pStage->stateBits & GLS_ATEST_BITS) {
+                    shaderAttribs |= GENERICDEF_USE_TCGEN_AND_TCMOD;
                 }
 
                 sp = &tr.genericShader[shaderAttribs];
