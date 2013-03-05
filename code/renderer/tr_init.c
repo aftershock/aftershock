@@ -55,8 +55,6 @@ cvar_t*  r_znear;
 cvar_t*  r_zproj;
 cvar_t*  r_stereoSeparation;
 
-cvar_t*  r_smp;
-cvar_t*  r_showSmp;
 cvar_t*  r_skipBackEnd;
 
 cvar_t*  r_stereoEnabled;
@@ -208,9 +206,6 @@ static void InitOpenGL(void) {
             glConfig.maxTextureSize = 0;
         }
     }
-
-    // init command buffers and SMP
-    R_InitCommandBuffers();
 
     // set default state
     GL_SetDefaultState();
@@ -958,9 +953,6 @@ void GfxInfo_f(void) {
     if (glConfig.hardwareType == GLHW_RIVA128) {
         ri.Printf(PRINT_ALL, "HACK: riva128 approximations\n");
     }
-    if (glConfig.smpActive) {
-        ri.Printf(PRINT_ALL, "Using dual processor acceleration\n");
-    }
     if (r_finish->integer) {
         ri.Printf(PRINT_ALL, "Forcing glFinish\n");
     }
@@ -1014,7 +1006,6 @@ void R_Register(void) {
     r_vertexLight = ri.Cvar_Get("r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH);
     r_uiFullScreen = ri.Cvar_Get("r_uifullscreen", "0", 0);
     r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
-    r_smp = ri.Cvar_Get("r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH);
     r_stereoEnabled = ri.Cvar_Get("r_stereoEnabled", "0", CVAR_ARCHIVE | CVAR_LATCH);
     r_ignoreFastPath = ri.Cvar_Get("r_ignoreFastPath", "1", CVAR_ARCHIVE | CVAR_LATCH);
     r_greyscale = ri.Cvar_Get("r_greyscale", "0", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1081,7 +1072,6 @@ void R_Register(void) {
     r_flareFade = ri.Cvar_Get("r_flareFade", "7", CVAR_CHEAT);
     r_flareCoeff = ri.Cvar_Get("r_flareCoeff", FLARE_STDCOEFF, CVAR_CHEAT);
 
-    r_showSmp = ri.Cvar_Get("r_showSmp", "0", CVAR_CHEAT);
     r_skipBackEnd = ri.Cvar_Get("r_skipBackEnd", "0", CVAR_CHEAT);
 
     r_measureOverdraw = ri.Cvar_Get("r_measureOverdraw", "0", CVAR_CHEAT);
@@ -1190,19 +1180,11 @@ void R_Init(void) {
     if (max_polyverts < MAX_POLYVERTS)
         max_polyverts = MAX_POLYVERTS;
 
-    ptr = ri.Hunk_Alloc(sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low);
-    backEndData[0] = (backEndData_t*) ptr;
-    backEndData[0]->polys = (srfPoly_t*)((char*) ptr + sizeof(*backEndData[0]));
-    backEndData[0]->polyVerts = (polyVert_t*)((char*) ptr + sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys);
-    if (r_smp->integer) {
-        ptr = ri.Hunk_Alloc(sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low);
-        backEndData[1] = (backEndData_t*) ptr;
-        backEndData[1]->polys = (srfPoly_t*)((char*) ptr + sizeof(*backEndData[1]));
-        backEndData[1]->polyVerts = (polyVert_t*)((char*) ptr + sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys);
-    } else {
-        backEndData[1] = NULL;
-    }
-    R_ToggleSmpFrame();
+    ptr = ri.Hunk_Alloc(sizeof(*backEndData) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low);
+    backEndData = (backEndData_t*) ptr;
+    backEndData->polys = (srfPoly_t*)((char*) ptr + sizeof(*backEndData));
+    backEndData->polyVerts = (polyVert_t*)((char*) ptr + sizeof(*backEndData) + sizeof(srfPoly_t) * max_polys);
+    R_InitNextFrame();
 
     InitOpenGL();
 
@@ -1248,8 +1230,7 @@ void RE_Shutdown(qboolean destroyWindow) {
 
 
     if (tr.registered) {
-        R_SyncRenderThread();
-        R_ShutdownCommandBuffers();
+        R_IssuePendingRenderCommands();
         R_DeleteTextures();
     }
 
@@ -1272,7 +1253,7 @@ Touch all images to make sure they are resident
 =============
 */
 void RE_EndRegistration(void) {
-    R_SyncRenderThread();
+    R_IssuePendingRenderCommands();
     if (!ri.Sys_LowPhysicalMemory()) {
         RB_ShowImages();
     }
@@ -1286,7 +1267,7 @@ GetRefAPI
 @@@@@@@@@@@@@@@@@@@@@
 */
 #ifdef USE_RENDERER_DLOPEN
-Q_EXPORT refexport_t QDECL* GetRefAPI(int apiVersion, refimport_t* rimp) {
+Q_EXPORT refexport_t* QDECL GetRefAPI(int apiVersion, refimport_t* rimp) {
 #else
 refexport_t* GetRefAPI(int apiVersion, refimport_t* rimp) {
 #endif

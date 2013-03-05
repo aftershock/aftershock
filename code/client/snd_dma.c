@@ -482,7 +482,7 @@ static qboolean S_Base_HearingThroughEntity(int entityNum, vec3_t origin) {
         VectorCopy(loopSounds[entityNum].origin, sorigin);
 
     if (listener_number == entityNum) {
-        // FIXME: <tim@ngus.net> 28/02/06 This is an outrageous hack to detect
+        // This is an outrageous hack to detect
         // whether or not the player is rendering in third person or not. We can't
         // ask the renderer because the renderer has no notion of entities and we
         // can't ask cgame since that would involve changing the API and hence mod

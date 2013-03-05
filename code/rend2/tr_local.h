@@ -40,11 +40,6 @@ typedef unsigned int glIndex_t;
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-// everything that is needed by the backend needs
-// to be double buffered to allow it to run in
-// parallel on a dual cpu machine
-#define SMP_FRAMES      2
-
 // 14 bits
 // can't be increased without changing bit packing for drawsurfs
 // see QSORT_SHADERNUM_SHIFT
@@ -85,10 +80,8 @@ typedef struct {
 
     qboolean    needDlights;    // true for bmodels that touch a dlight
     qboolean    lightingCalculated;
-#ifdef REACTION
     // JBravo: Mirrored models
     qboolean    mirrored;       // mirrored matrix, needs reversed culling
-#endif
     vec3_t      lightDir;       // normalized direction towards light
     vec3_t      ambientLight;   // color normalized to 0-255
     int         ambientLightInt;    // 32 bit rgba packed
@@ -974,12 +967,13 @@ typedef struct {
 } fog_t;
 
 typedef enum {
-    VPF_NONE         = 0x00,
-    VPF_SHADOWMAP    = 0x01,
-    VPF_DEPTHSHADOW  = 0x02,
-    VPF_DEPTHCLAMP   = 0x04,
-    VPF_ORTHOGRAPHIC = 0x08,
-    VPF_USESUNLIGHT  = 0x10,
+    VPF_NONE            = 0x00,
+    VPF_SHADOWMAP       = 0x01,
+    VPF_DEPTHSHADOW     = 0x02,
+    VPF_DEPTHCLAMP      = 0x04,
+    VPF_ORTHOGRAPHIC    = 0x08,
+    VPF_USESUNLIGHT     = 0x10,
+    VPF_FARPLANEFRUSTUM = 0x20
 } viewParmFlags_t;
 
 typedef struct {
@@ -1106,8 +1100,8 @@ typedef struct srfGridMesh_s {
     surfaceType_t   surfaceType;
 
     // dynamic lighting information
-    int             dlightBits[SMP_FRAMES];
-    int             pshadowBits[SMP_FRAMES];
+    int             dlightBits;
+    int             pshadowBits;
 
     // culling information
     vec3_t          meshBounds[2];
@@ -1149,8 +1143,8 @@ typedef struct {
     surfaceType_t   surfaceType;
 
     // dynamic lighting information
-    int         dlightBits[SMP_FRAMES];
-    int         pshadowBits[SMP_FRAMES];
+    int         dlightBits;
+    int         pshadowBits;
 
     // culling information
     cplane_t        plane;
@@ -1180,8 +1174,8 @@ typedef struct {
     surfaceType_t   surfaceType;
 
     // dynamic lighting information
-    int         dlightBits[SMP_FRAMES];
-    int         pshadowBits[SMP_FRAMES];
+    int         dlightBits;
+    int         pshadowBits;
 
     // culling information
     //  vec3_t          bounds[2];
@@ -1245,8 +1239,8 @@ typedef struct srfVBOMesh_s {
     int             fogIndex;
 
     // dynamic lighting information
-    int         dlightBits[SMP_FRAMES];
-    int         pshadowBits[SMP_FRAMES];
+    int         dlightBits;
+    int         pshadowBits;
 
     // culling information
     vec3_t          bounds[2];
@@ -1708,7 +1702,6 @@ typedef struct {
 // all state modified by the back end is seperated
 // from the front end state
 typedef struct {
-    int         smpFrame;
     trRefdef_t  refdef;
     viewParms_t viewParms;
     orientationr_t  or;
@@ -1716,12 +1709,6 @@ typedef struct {
     qboolean    isHyperspace;
     trRefEntity_t*   currentEntity;
     qboolean    skyRenderedThisView;    // flag for drawing sun
-
-#ifdef REACTION
-    vec3_t                  sunFlarePos;
-    qboolean                viewHasSunFlare;
-    qboolean                frameHasSunFlare;
-#endif
 
     qboolean    projection2D;   // if qtrue, drawstretchpic doesn't need to change modes
     byte        color2D[4];
@@ -1754,8 +1741,6 @@ typedef struct {
     int                     viewCount;      // incremented every view (twice a scene if portaled)
     // and every R_MarkFragments call
 
-    int                     smpFrame;       // toggles from 0 to 1 every endFrame
-
     int                     frameSceneNum;  // zeroed at RE_BeginFrame
 
     qboolean                worldMapLoaded;
@@ -1778,7 +1763,7 @@ typedef struct {
 
 
     image_t*                 renderImage;
-    image_t*                 godRaysImage;
+    image_t*                 sunRaysImage;
     image_t*                 renderDepthImage;
     image_t*                 pshadowMaps[MAX_DRAWN_PSHADOWS];
     image_t*                 textureScratchImage[2];
@@ -1796,7 +1781,7 @@ typedef struct {
 
     FBO_t*                   renderFbo;
     FBO_t*                   msaaResolveFbo;
-    FBO_t*                   godRaysFbo;
+    FBO_t*                   sunRaysFbo;
     FBO_t*                   depthFbo;
     FBO_t*                   pshadowFbos[MAX_DRAWN_PSHADOWS];
     FBO_t*                   textureScratchFbo[2];
@@ -1815,6 +1800,7 @@ typedef struct {
 
     shader_t*                flareShader;
     shader_t*                sunShader;
+    shader_t*                sunFlareShader;
 
     int                     numLightmaps;
     int                     lightmapSize;
@@ -1902,11 +1888,9 @@ typedef struct {
     int                     numSkins;
     skin_t*                  skins[MAX_SKINS];
 
-#ifdef REACTION
     GLuint                  sunFlareQuery[2];
     int                     sunFlareQueryIndex;
     qboolean                sunFlareQueryActive[2];
-#endif
 
     float                   sinTable[FUNCTABLE_SIZE];
     float                   squareTable[FUNCTABLE_SIZE];
@@ -2038,8 +2022,6 @@ extern  cvar_t*  r_portalOnly;
 
 extern  cvar_t*  r_subdivisions;
 extern  cvar_t*  r_lodCurveError;
-extern  cvar_t*  r_smp;
-extern  cvar_t*  r_showSmp;
 extern  cvar_t*  r_skipBackEnd;
 
 extern  cvar_t*  r_stereoEnabled;
@@ -2088,6 +2070,7 @@ extern  cvar_t*  r_forceSun;
 extern  cvar_t*  r_forceSunMapLightScale;
 extern  cvar_t*  r_forceSunLightScale;
 extern  cvar_t*  r_forceSunAmbientScale;
+extern  cvar_t*  r_drawSunRays;
 extern  cvar_t*  r_sunShadows;
 extern  cvar_t*  r_shadowFilter;
 extern  cvar_t*  r_shadowMapSize;
@@ -2283,11 +2266,6 @@ void        GLimp_Init(void);
 void        GLimp_Shutdown(void);
 void        GLimp_EndFrame(void);
 
-qboolean    GLimp_SpawnRenderThread(void (*function)(void));
-void*        GLimp_RendererSleep(void);
-void        GLimp_FrontEndSleep(void);
-void        GLimp_WakeRenderer(void* data);
-
 void        GLimp_LogComment(char* comment);
 void        GLimp_Minimize(void);
 
@@ -2448,7 +2426,7 @@ SKIES
 void R_BuildCloudData(shaderCommands_t* shader);
 void R_InitSkyTexCoords(float cloudLayerHeight);
 void R_DrawSkyBox(shaderCommands_t* shader);
-void RB_DrawSun(void);
+void RB_DrawSun(float scale, shader_t* shader);
 void RB_ClipSkyPolygons(shaderCommands_t* shader);
 
 /*
@@ -2540,7 +2518,7 @@ SCENE GENERATION
 ============================================================
 */
 
-void R_ToggleSmpFrame(void);
+void R_InitNextFrame(void);
 
 void RE_ClearScene(void);
 void RE_AddRefEntityToScene(const refEntity_t* ent);
@@ -2654,7 +2632,6 @@ RENDERER BACK END FUNCTIONS
 =============================================================
 */
 
-void RB_RenderThread(void);
 void RB_ExecuteRenderCommands(const void* data);
 
 /*
@@ -2780,9 +2757,7 @@ typedef enum {
 #define MAX_POLYVERTS   3000
 
 // all of the information needed by the back end must be
-// contained in a backEndData_t.  This entire structure is
-// duplicated so the front and back end can run in parallel
-// on an SMP machine
+// contained in a backEndData_t
 typedef struct {
     drawSurf_t  drawSurfs[MAX_DRAWSURFS];
     dlight_t    dlights[MAX_DLIGHTS];
@@ -2796,20 +2771,15 @@ typedef struct {
 extern  int     max_polys;
 extern  int     max_polyverts;
 
-extern  backEndData_t*   backEndData[SMP_FRAMES];   // the second one may not be allocated
+extern  backEndData_t*   backEndData;   // the second one may not be allocated
 
 extern  volatile renderCommandList_t*    renderCommandList;
-
-extern  volatile qboolean   renderThreadActive;
 
 
 void* R_GetCommandBuffer(int bytes);
 void RB_ExecuteRenderCommands(const void* data);
 
-void R_InitCommandBuffers(void);
-void R_ShutdownCommandBuffers(void);
-
-void R_SyncRenderThread(void);
+void R_IssuePendingRenderCommands(void);
 
 void R_AddDrawSurfCmd(drawSurf_t* drawSurfs, int numDrawSurfs);
 void R_AddCapShadowmapCmd(int dlight, int cubeSide);

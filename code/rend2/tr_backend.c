@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "tr_local.h"
 
-backEndData_t*   backEndData[SMP_FRAMES];
+backEndData_t*   backEndData;
 backEndState_t  backEnd;
 
 
@@ -144,12 +144,6 @@ void GL_BindToTMU(image_t* image, int tmu) {
 ** GL_Cull
 */
 void GL_Cull(int cullType) {
-#ifdef REACTION
-    // Makro - flip culling if needed
-    qboolean flip = (backEnd.currentEntity != NULL && backEnd.currentEntity->mirrored != qfalse && cullType != CT_TWO_SIDED);
-    cullType ^= flip;   // this assumes CT_BACK_SIDED and CT_FRONT_SIDED are 0 or 1
-#endif
-
     if (glState.faceCulling == cullType) {
         return;
     }
@@ -164,6 +158,10 @@ void GL_Cull(int cullType) {
 
         cullFront = (cullType == CT_FRONT_SIDED);
         if (backEnd.viewParms.isMirror) {
+            cullFront = !cullFront;
+        }
+
+        if (backEnd.currentEntity && backEnd.currentEntity->mirrored) {
             cullFront = !cullFront;
         }
 
@@ -493,10 +491,6 @@ void RB_BeginDrawingView(void) {
     // we will only draw a sun if there was sky rendered in this view
     backEnd.skyRenderedThisView = qfalse;
 
-#ifdef REACTION
-    backEnd.viewHasSunFlare = qfalse;
-#endif
-
     // clip to the plane of the portal
     if (backEnd.viewParms.isPortal) {
 #if 0
@@ -539,9 +533,7 @@ void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, int numDrawSurfs) {
     FBO_t*          fbo = NULL;
     qboolean        inQuery = qfalse;
 
-#if 1 //def REACTION
     float           depth[2];
-#endif
 
 
     // save original time for entity shader offsets
@@ -561,10 +553,8 @@ void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, int numDrawSurfs) {
     oldSort = -1;
     depthRange = qfalse;
 
-#if 1 //def REACTION
     depth[0] = 0.f;
     depth[1] = 1.f;
-#endif
 
     backEnd.pc.c_surfaces += numDrawSurfs;
 
@@ -607,21 +597,6 @@ void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, int numDrawSurfs) {
             qboolean sunflare = qfalse;
             depthRange = isCrosshair = qfalse;
 
-#ifdef REACTION
-            // if we were rendering to a FBO and the previous entity was a sunflare
-            // and the current one isn't, switch back to the main fbo
-            if (oldEntityNum != -1 && fbo && !backEnd.depthFill &&
-                    RF_SUNFLARE == (backEnd.refdef.entities[oldEntityNum].e.renderfx & RF_SUNFLARE) &&
-                    0 == (backEnd.refdef.entities[entityNum].e.renderfx & RF_SUNFLARE)) {
-                if (inQuery) {
-                    inQuery = qfalse;
-                    qglEndQueryARB(GL_SAMPLES_PASSED_ARB);
-                }
-                FBO_Bind(fbo);
-                qglDepthRange(depth[0], depth[1]);
-            }
-#endif
-
             if (entityNum != REFENTITYNUM_WORLD) {
                 backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
                 backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
@@ -636,31 +611,6 @@ void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, int numDrawSurfs) {
                 if (backEnd.currentEntity->needDlights) {
                     R_TransformDlights(backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or);
                 }
-
-#ifdef REACTION
-                // if the current entity is a sunflare
-                if (backEnd.currentEntity->e.renderfx & RF_SUNFLARE && !backEnd.depthFill) {
-                    // if we're rendering to a fbo
-                    if (fbo) {
-                        VectorCopy(backEnd.currentEntity->e.origin, backEnd.sunFlarePos);
-                        // switch FBO
-                        FBO_Bind(tr.godRaysFbo);
-
-                        qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                        qglClear(GL_COLOR_BUFFER_BIT);
-
-                        qglDepthRange(1.f, 1.f);
-                        if (glRefConfig.occlusionQuery && !inQuery && !backEnd.viewHasSunFlare) {
-                            inQuery = qtrue;
-                            tr.sunFlareQueryActive[tr.sunFlareQueryIndex] = qtrue;
-                            qglBeginQueryARB(GL_SAMPLES_PASSED_ARB, tr.sunFlareQuery[tr.sunFlareQueryIndex]);
-                        }
-                        sunflare = qtrue;
-                    } else {
-                        depthRange = qtrue;
-                    }
-                }
-#endif
 
                 if (backEnd.currentEntity->e.renderfx & RF_DEPTHHACK) {
                     // hack the depth range to prevent view model from poking into walls
@@ -702,13 +652,11 @@ void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, int numDrawSurfs) {
                         }
                     }
 
-#if 1 //def REACTION
                     if (!oldDepthRange) {
                         depth[0] = 0;
                         depth[1] = 0.3f;
                         qglDepthRange(depth[0], depth[1]);
                     }
-#endif
                 } else {
                     if (!wasCrosshair && backEnd.viewParms.stereoFrame != STEREO_CENTER) {
                         GL_SetProjectionMatrix(backEnd.viewParms.projectionMatrix);
@@ -716,10 +664,9 @@ void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, int numDrawSurfs) {
 
                     if (!sunflare)
                         qglDepthRange(0, 1);
-#if 1 //def REACTION
+
                     depth[0] = 0;
                     depth[1] = 1;
-#endif
                 }
 
                 oldDepthRange = depthRange;
@@ -744,15 +691,6 @@ void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, int numDrawSurfs) {
         inQuery = qfalse;
         qglEndQueryARB(GL_SAMPLES_PASSED_ARB);
     }
-#ifdef REACTION
-    // HACK: flip Z and render black to god rays buffer
-    if (backEnd.frameHasSunFlare && !backEnd.depthFill) {
-        vec4_t black;
-        VectorSet4(black, 0, 0, 0, 1);
-        qglDepthRange(1, 1);
-        FBO_BlitFromTexture(tr.whiteImage, NULL, NULL, tr.godRaysFbo, NULL, NULL, black, GLS_DEPTHFUNC_GREATER);
-    }
-#endif
 
     if (glRefConfig.framebufferObject)
         FBO_Bind(fbo);
@@ -760,16 +698,15 @@ void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, int numDrawSurfs) {
     // go back to the world modelview matrix
 
     GL_SetModelviewMatrix(backEnd.viewParms.world.modelMatrix);
-    //if ( depthRange ) {
+
     qglDepthRange(0, 1);
-    //}
 }
 
 
 /*
 ============================================================================
 
-RENDER BACK END THREAD FUNCTIONS
+RENDER BACK END FUNCTIONS
 
 ============================================================================
 */
@@ -841,7 +778,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
     if (!tr.registered) {
         return;
     }
-    R_SyncRenderThread();
+    R_IssuePendingRenderCommands();
 
     // we definately want to sync every frame for the cinematics
     qglFinish();
@@ -1330,9 +1267,31 @@ const void*  RB_DrawSurfs(const void* data) {
     if (!(backEnd.viewParms.flags & VPF_DEPTHSHADOW)) {
         RB_RenderDrawSurfList(cmd->drawSurfs, cmd->numDrawSurfs);
 
-#if 0
-        RB_DrawSun();
-#endif
+        if (r_drawSun->integer) {
+            RB_DrawSun(0.1, tr.sunShader);
+        }
+
+        if (r_drawSunRays->integer) {
+            FBO_t* oldFbo = glState.currentFBO;
+            FBO_Bind(tr.sunRaysFbo);
+
+            qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            qglClear(GL_COLOR_BUFFER_BIT);
+
+            if (glRefConfig.occlusionQuery) {
+                tr.sunFlareQueryActive[tr.sunFlareQueryIndex] = qtrue;
+                qglBeginQueryARB(GL_SAMPLES_PASSED_ARB, tr.sunFlareQuery[tr.sunFlareQueryIndex]);
+            }
+
+            RB_DrawSun(0.3, tr.sunFlareShader);
+
+            if (glRefConfig.occlusionQuery) {
+                qglEndQueryARB(GL_SAMPLES_PASSED_ARB);
+            }
+
+            FBO_Bind(oldFbo);
+        }
+
         // darken down any stencil shadows
         RB_ShadowFinish();
 
@@ -1357,6 +1316,10 @@ const void*  RB_DrawBuffer(const void* data) {
     const drawBufferCommand_t*   cmd;
 
     cmd = (const drawBufferCommand_t*)data;
+
+    // finish any 2D drawing if needed
+    if (tess.numIndexes)
+        RB_EndSurface();
 
     if (glRefConfig.framebufferObject)
         FBO_Bind(NULL);
@@ -1440,6 +1403,10 @@ RB_ColorMask
 const void* RB_ColorMask(const void* data) {
     const colorMaskCommand_t* cmd = data;
 
+    // finish any 2D drawing if needed
+    if (tess.numIndexes)
+        RB_EndSurface();
+
     if (glRefConfig.framebufferObject) {
         // reverse color mask, so 0 0 0 0 is the default
         backEnd.colorMask[0] = !cmd->rgba[0];
@@ -1462,6 +1429,7 @@ RB_ClearDepth
 const void* RB_ClearDepth(const void* data) {
     const clearDepthCommand_t* cmd = data;
 
+    // finish any 2D drawing if needed
     if (tess.numIndexes)
         RB_EndSurface();
 
@@ -1568,9 +1536,6 @@ const void*  RB_SwapBuffers(const void* data) {
 
     backEnd.framePostProcessed = qfalse;
     backEnd.projection2D = qfalse;
-#ifdef REACTION
-    backEnd.frameHasSunFlare = qfalse;
-#endif
 
     return (const void*)(cmd + 1);
 }
@@ -1583,6 +1548,10 @@ RB_CapShadowMap
 */
 const void* RB_CapShadowMap(const void* data) {
     const capShadowmapCommand_t* cmd = data;
+
+    // finish any 2D drawing if needed
+    if (tess.numIndexes)
+        RB_EndSurface();
 
     if (cmd->map != -1) {
         GL_SelectTexture(0);
@@ -1610,6 +1579,10 @@ const void* RB_PostProcess(const void* data) {
     const postProcessCommand_t* cmd = data;
     FBO_t* srcFbo;
     qboolean autoExposure;
+
+    // finish any 2D drawing if needed
+    if (tess.numIndexes)
+        RB_EndSurface();
 
     if (!glRefConfig.framebufferObject || !r_postProcess->integer) {
         // do nothing
@@ -1645,16 +1618,13 @@ const void* RB_PostProcess(const void* data) {
         }
     }
 
-#ifdef REACTION
-    if (1) {
-        RB_GodRays();
+    if (r_drawSunRays->integer)
+        RB_SunRays();
 
-        if (1)
-            RB_BokehBlur(backEnd.refdef.blurFactor);
-        else
-            RB_GaussianBlur(backEnd.refdef.blurFactor);
-    }
-#endif
+    if (1)
+        RB_BokehBlur(backEnd.refdef.blurFactor);
+    else
+        RB_GaussianBlur(backEnd.refdef.blurFactor);
 
     if (0) {
         vec4i_t dstBox;
@@ -1677,7 +1647,7 @@ const void* RB_PostProcess(const void* data) {
     if (0) {
         vec4i_t dstBox;
         VectorSet4(dstBox, 256, glConfig.vidHeight - 256, 256, 256);
-        FBO_BlitFromTexture(tr.renderImage, NULL, NULL, tr.screenScratchFbo, dstBox, NULL, NULL, 0);
+        FBO_BlitFromTexture(tr.sunRaysImage, NULL, NULL, tr.screenScratchFbo, dstBox, NULL, NULL, 0);
     }
 
     backEnd.framePostProcessed = qtrue;
@@ -1688,21 +1658,12 @@ const void* RB_PostProcess(const void* data) {
 /*
 ====================
 RB_ExecuteRenderCommands
-
-This function will be called synchronously if running without
-smp extensions, or asynchronously by another thread.
 ====================
 */
 void RB_ExecuteRenderCommands(const void* data) {
     int     t1, t2;
 
     t1 = ri.Milliseconds();
-
-    if (!r_smp->integer || data == backEndData[0]->commands.cmds) {
-        backEnd.smpFrame = 0;
-    } else {
-        backEnd.smpFrame = 1;
-    }
 
     while (1) {
         data = PADP(data, sizeof(void*));
@@ -1743,7 +1704,11 @@ void RB_ExecuteRenderCommands(const void* data) {
                 break;
             case RC_END_OF_LIST:
             default:
-                // stop rendering on this thread
+                // finish any 2D drawing if needed
+                if (tess.numIndexes)
+                    RB_EndSurface();
+
+                // stop rendering
                 t2 = ri.Milliseconds();
                 backEnd.pc.msec = t2 - t1;
                 return;
@@ -1751,31 +1716,3 @@ void RB_ExecuteRenderCommands(const void* data) {
     }
 
 }
-
-
-/*
-================
-RB_RenderThread
-================
-*/
-void RB_RenderThread(void) {
-    const void*  data;
-
-    // wait for either a rendering command or a quit command
-    while (1) {
-        // sleep until we have work to do
-        data = GLimp_RendererSleep();
-
-        if (!data) {
-            return; // all done, renderer is shutting down
-        }
-
-        renderThreadActive = qtrue;
-
-        RB_ExecuteRenderCommands(data);
-
-        renderThreadActive = qfalse;
-    }
-}
-
-

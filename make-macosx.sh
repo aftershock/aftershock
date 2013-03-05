@@ -1,17 +1,7 @@
 #!/bin/sh
 #
 
-CC=gcc-4.0
-APPBUNDLE=ioquake3.app
-BINARY=ioquake3.${BUILDARCH}
-DEDBIN=ioq3ded.${BUILDARCH}
-PKGINFO=APPLIOQ3
-ICNS=misc/quake3.icns
-DESTDIR=build/release-darwin-${BUILDARCH}
-BASEDIR=baseq3
-MPACKDIR=missionpack
-
-# Lets make the user give us a target build system
+# Let's make the user give us a target build system
 
 if [ $# -ne 1 ]; then
 	echo "Usage:   $0 target_architecture"
@@ -34,6 +24,16 @@ else
 	exit 1
 fi
 
+CC=gcc-4.0
+APPBUNDLE=ioquake3.app
+BINARY=ioquake3.${BUILDARCH}
+DEDBIN=ioq3ded.${BUILDARCH}
+PKGINFO=APPLIOQ3
+ICNS=misc/quake3.icns
+DESTDIR=build/release-darwin-${BUILDARCH}
+BASEDIR=baseq3
+MPACKDIR=missionpack
+
 BIN_OBJ="
 	build/release-darwin-${BUILDARCH}/ioquake3.${BUILDARCH}
 "
@@ -51,10 +51,8 @@ MPACK_OBJ="
 	build/release-darwin-${BUILDARCH}/$MPACKDIR/qagame${BUILDARCH}.dylib
 "
 RENDER_OBJ="
-	build/release-darwin-${BUILDARCH}/renderer_opengl1_smp_${BUILDARCH}.dylib
 	build/release-darwin-${BUILDARCH}/renderer_opengl1_${BUILDARCH}.dylib
-	build/release-darwin-${BUILDARCH}/renderer_rend2_smp_${BUILDARCH}.dylib
-	build/release-darwin-${BUILDARCH}/renderer_rend2_${BUILDARCH}.dylib
+	build/release-darwin-${BUILDARCH}/renderer_opengl2_${BUILDARCH}.dylib
 "
 
 cd `dirname $0`
