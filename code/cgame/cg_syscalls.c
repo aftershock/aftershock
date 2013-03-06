@@ -362,6 +362,9 @@ void trap_Key_SetCatcher(int catcher) {
 int trap_Key_GetKey(const char* binding) {
     return syscall(CG_KEY_GETKEY, binding);
 }
+qboolean trap_Key_GetKeyName(const char* binding, char* name, int namelen) {
+    return syscall(CG_KEY_GETKEYNAME, binding, name, namelen);
+}
 
 int trap_PC_AddGlobalDefine(char* define) {
     return syscall(CG_PC_ADD_GLOBAL_DEFINE, define);

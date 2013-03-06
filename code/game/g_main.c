@@ -81,6 +81,7 @@ vmCvar_t    pmove_fixed;
 vmCvar_t    pmove_msec;
 vmCvar_t    g_rankings;
 vmCvar_t    g_listEntity;
+vmCvar_t    g_startWhenReady;
 #ifdef MISSIONPACK
 vmCvar_t    g_obeliskHealth;
 vmCvar_t    g_obeliskRegenPeriod;
@@ -177,7 +178,8 @@ static cvarTable_t      gameCvarTable[] = {
     { &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
     { &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
-    { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
+    { &g_rankings, "g_rankings", "0", 0, 0, qfalse},
+    { &g_startWhenReady, "g_startWhenReady", "0.6", 0, 0, qfalse}
 
 };
 
@@ -1232,7 +1234,7 @@ void CheckIntermissionExit(void) {
         }
 
         playerCount++;
-        if (cl->readyToExit) {
+        if (cl->ready) {
             ready++;
             if (i < 16) {
                 readyMask |= 1 << i;
@@ -1415,6 +1417,75 @@ FUNCTIONS CALLED EVERY FRAME
 ========================================================================
 */
 
+/*
+=============
+MatchReady
+
+=============
+*/
+static qboolean MatchReady(void) {
+    int         numReady1, numReady2;
+    int         bots1, bots2;
+    int         i;
+
+    if (level.numPlayingClients < 2) {
+        return qfalse;
+    }
+    if (level.warmupTime != -1) {
+        return qtrue;
+    }
+
+    if (g_gametype.integer < GT_TEAM) {
+        numReady1 = 0;
+        bots1 = 0;
+        for (i=0; i < level.numPlayingClients; i++) {
+            if (level.clients[ level.sortedClients[i] ].ready) {
+                numReady1++;
+            } else if (g_entities[level.sortedClients[i]].r.svFlags & SVF_BOT) {
+                bots1++;
+            }
+        }
+        if (((float)numReady1) >= g_startWhenReady.value * (level.numPlayingClients - bots1)) {
+            return qtrue;
+        }
+    } else {
+        numReady1 = 0;
+        numReady2 = 0;
+        bots1 = 0;
+        bots2 = 0;
+
+        for (i=0; i < level.numPlayingClients; i++) {
+            if (level.clients[ level.sortedClients[i] ].ready) {
+                switch (level.clients[ level.sortedClients[i] ].sess.sessionTeam) {
+                    case TEAM_BLUE:
+                        numReady1++;
+                        break;
+                    case TEAM_RED:
+                        numReady2++;
+                    default:
+                        break;
+                }
+            } else if (g_entities[level.sortedClients[i]].r.svFlags & SVF_BOT) {
+                switch (level.clients[ level.sortedClients[i] ].sess.sessionTeam) {
+                    case TEAM_BLUE:
+                        bots1++;
+                        break;
+                    case TEAM_RED:
+                        bots2++;
+                    default:
+                        break;
+                }
+            }
+        }
+        if (((float)numReady1) >= g_startWhenReady.value * (TeamCount(-1, TEAM_BLUE) - bots1)) {
+            if (((float)numReady2) >= g_startWhenReady.value * (TeamCount(-1, TEAM_RED) - bots2)) {
+                return qtrue;
+            }
+        }
+    }
+    return qfalse;
+}
+
 
 /*
 =============
@@ -1438,7 +1509,7 @@ void CheckTournament(void) {
         }
 
         // if we don't have two players, go back to "waiting for players"
-        if (level.numPlayingClients != 2) {
+        if (level.numPlayingClients != 2 || !MatchReady()) {
             if (level.warmupTime != -1) {
                 level.warmupTime = -1;
                 trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
@@ -1495,7 +1566,7 @@ void CheckTournament(void) {
             notEnough = qtrue;
         }
 
-        if (notEnough) {
+        if (notEnough || !MatchReady()) {
             if (level.warmupTime != -1) {
                 level.warmupTime = -1;
                 trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
@@ -1715,6 +1786,43 @@ void CheckCvars(void) {
     }
 }
 
+
+/*
+==================
+CheckReadyMask
+==================
+*/
+void CheckReadyMask(void) {
+    int         readyMask=0;
+    int         i;
+    gclient_t*  cl;
+
+    for (i = 0 ; i < g_maxclients.integer ; i++) {
+        cl = level.clients + i;
+        if (cl->pers.connected != CON_CONNECTED) {
+            continue;
+        }
+        if (cl->sess.sessionTeam == TEAM_SPECTATOR) {
+            continue;
+        }
+        if (g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) {
+            continue;
+        }
+
+        if (cl->ready && i < 16) {
+            readyMask |= 1 << i;
+        }
+    }
+
+    for (i = 0 ; i < g_maxclients.integer ; i++) {
+        cl = level.clients + i;
+        if (cl->pers.connected != CON_CONNECTED) {
+            continue;
+        }
+        cl->ps.stats[STAT_CLIENTS_READY] = readyMask;
+    }
+}
+
 /*
 =============
 G_RunThink
@@ -1852,6 +1960,8 @@ void G_RunFrame(int levelTime) {
 
     // for tracking changes
     CheckCvars();
+
+    CheckReadyMask();
 
     if (g_listEntity.integer) {
         for (i = 0; i < MAX_GENTITIES; i++) {

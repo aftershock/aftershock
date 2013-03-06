@@ -617,6 +617,8 @@ intptr_t CL_CgameSystemCalls(intptr_t* args) {
             return 0;
         case CG_KEY_GETKEY:
             return Key_GetKey(VMA(1));
+        case CG_KEY_GETKEYNAME:
+            return Key_GetKeyName(VMA(1), VMA(2), args[3]);
 
 
 

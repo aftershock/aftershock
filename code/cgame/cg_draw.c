@@ -1511,6 +1511,44 @@ static void CG_DrawReward(void) {
     trap_R_SetColor(NULL);
 }
 
+#define READY_YPOS 150
+#define READY_CHARSIZE 12.0f
+/*
+===================
+CG_DrawReady
+===================
+*/
+static void CG_DrawReady ( void ) {
+    qboolean bound;
+    char keyname[32];
+    char* s;
+    int len;
+    float xpos;
+
+    if ( cg.warmup >= 0 )
+        return;
+
+    bound = trap_Key_GetKeyName("ready", keyname, 32);
+    if ( bound ) {
+        if ( cg.snap->ps.stats[STAT_CLIENTS_READY] & ( 1 << cg.snap->ps.clientNum ) ) {
+            s = va("^2You are READY, press \"%s\" to unready yourself", keyname);
+        } else {
+            s = va("^1You are not READY, press \"%s\" to get ready", keyname);
+        }
+    }
+    else {
+        if (cg.snap->ps.stats[STAT_CLIENTS_READY] & ( 1 << cg.snap->ps.clientNum )) {
+            s = va("^2You are READY, type \"\\ready\" to unready yourself");
+        } else {
+            s = va("^1You are not READY, type \"\\ready\" to get ready");
+        }
+    }
+
+    len = strlen(s);
+    xpos = 320 - len * READY_CHARSIZE/2;
+    CG_DrawStringExt(xpos, READY_YPOS, s, colorWhite, qfalse, qtrue, READY_CHARSIZE, READY_CHARSIZE, 0);
+}
+
 
 /*
 ===============================================================================
@@ -2352,7 +2390,7 @@ static void CG_DrawWarmup(void) {
     }
 
     if (sec < 0) {
-        s = "Waiting for players";
+        s = "Waiting for match to begin";
         w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
         CG_DrawBigString(320 - w / 2, 24, s, 1.0F);
         cg.warmupCount = 0;
@@ -2568,6 +2606,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame) {
 #else
             //CG_DrawPersistantPowerup();
 #endif
+            CG_DrawReady();
             CG_DrawReward();
         }
 

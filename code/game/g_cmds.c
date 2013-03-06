@@ -1571,6 +1571,28 @@ void Cmd_Stats_f(gentity_t* ent) {
 
 /*
 =================
+Cmd_Ready_f
+=================
+*/
+void Cmd_Ready_f(gentity_t* ent) {
+    gclient_t*  cl;
+
+    if (level.warmupTime >= 0) {
+        return;
+    }
+
+    cl = ent->client;
+    if (cl->ready == 0) {
+        cl->ready = 1;
+        trap_SendServerCommand(-1, va("print \"%s ^2is ready.\n\"", ent->client->pers.netname));
+    } else if (cl->ready == 1) {
+        cl->ready = 0;
+        trap_SendServerCommand(-1, va("print \"%s ^1is not ready.\n\"", ent->client->pers.netname));
+    }
+}
+
+/*
+=================
 ClientCommand
 =================
 */
@@ -1677,6 +1699,8 @@ void ClientCommand(int clientNum) {
         Cmd_SetViewpos_f(ent);
     else if (Q_stricmp(cmd, "stats") == 0)
         Cmd_Stats_f(ent);
+    else if (Q_stricmp(cmd, "ready") == 0)
+        Cmd_Ready_f(ent);
     else
         trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

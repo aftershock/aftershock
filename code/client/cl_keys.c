@@ -923,6 +923,27 @@ int Key_GetKey(const char* binding) {
 
 /*
 ===================
+Key_GetKeyName
+===================
+*/
+
+qboolean Key_GetKeyName(const char* binding, char* name, int namelen) {
+    int i;
+
+    if (binding) {
+        for (i = 0 ; i < MAX_KEYS ; i++) {
+            if (keys[i].binding && Q_stricmp(binding, keys[i].binding) == 0) {
+                  Q_strncpyz(name, Key_KeynumToString(i), namelen);
+                  return qtrue;
+            }
+        }
+    }
+    name = "<NULL>";
+    return qfalse;
+}
+
+/*
+===================
 Key_Unbind_f
 ===================
 */

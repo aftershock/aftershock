@@ -1047,6 +1047,7 @@ void ClientSpawn(gentity_t* ent) {
     int     accuracy_hits, accuracy_shots;
     int     eventSequence;
     char    userinfo[MAX_INFO_STRING];
+    qboolean ready;
 
     index = ent - g_entities;
     client = ent->client;
@@ -1101,9 +1102,11 @@ void ClientSpawn(gentity_t* ent) {
         persistant[i] = client->ps.persistant[i];
     }
     eventSequence = client->ps.eventSequence;
+    ready = client->ready;
 
     Com_Memset(client, 0, sizeof(*client));
 
+    client->ready = ready;
     client->pers = saved;
     client->sess = savedSess;
     client->ps.ping = savedPing;

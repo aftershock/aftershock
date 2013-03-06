@@ -259,7 +259,7 @@ struct gclient_s {
     clientPersistant_t  pers;
     clientSession_t     sess;
 
-    qboolean    readyToExit;        // wishes to leave the intermission
+    qboolean    ready;        // wishes to leave the intermission or is ready to start the match
 
     qboolean    noclip;
 
@@ -744,6 +744,7 @@ extern  vmCvar_t    g_enableDust;
 extern  vmCvar_t    g_enableBreath;
 extern  vmCvar_t    g_singlePlayer;
 extern  vmCvar_t    g_proxMineTimeout;
+extern  vmCvar_t    g_startWhenReady;
 
 void    trap_Print(const char* text);
 void    trap_Error(const char* text) __attribute__((noreturn));
