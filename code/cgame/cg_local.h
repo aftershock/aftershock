@@ -988,6 +988,135 @@ typedef struct {
 
 } cgMedia_t;
 
+typedef enum {
+    HUD_DEFAULT,
+    HUD_AMMOWARNING,
+    HUD_ATTACKERICON,
+    HUD_ATTACKERNAME,
+    HUD_CHAT1,
+    HUD_CHAT2,
+    HUD_CHAT3,
+    HUD_CHAT4,
+    HUD_CHAT5,
+    HUD_CHAT6,
+    HUD_CHAT7,
+    HUD_CHAT8,
+    HUD_FS_OWN,
+    HUD_FS_NME,
+    HUD_FOLLOW,
+    HUD_FPS,
+    HUD_FRAGMSG,
+    HUD_GAMETIME,
+    HUD_CATIME,
+    HUD_GAMETYPE,
+    HUD_ITEMPICKUPNAME,
+    HUD_ITEMPICKUPTIME,
+    HUD_ITEMPICKUPICON,
+    HUD_NETGRAPH,
+    HUD_NETGRAPHPING,
+    HUD_SPEED,
+    HUD_ACCEL,
+    HUD_PU1,
+    HUD_PU2,
+    HUD_PU3,
+    HUD_PU4,
+    HUD_PU1ICON,
+    HUD_PU2ICON,
+    HUD_PU3ICON,
+    HUD_PU4ICON,
+    HUD_RANKMSG,
+    HUD_SCORELIMIT,
+    HUD_SCORENME,
+    HUD_SCOREOWN,
+    HUD_SPECMESSAGE,
+    HUD_ARMORBAR,
+    HUD_ARMORCOUNT,
+    HUD_ARMORICON,
+    HUD_AMMOBAR,
+    HUD_AMMOCOUNT,
+    HUD_AMMOICON,
+    HUD_HEALTHBAR,
+    HUD_HEALTHCOUNT,
+    HUD_HEALTHICON,
+    HUD_TARGETNAME,
+    HUD_TARGETSTATUS,
+    HUD_TC_NME,
+    HUD_TC_OWN,
+    HUD_TI_NME,
+    HUD_TI_OWN,
+    HUD_TEAMCHAT1,
+    HUD_TEAMCHAT2,
+    HUD_TEAMCHAT3,
+    HUD_TEAMCHAT4,
+    HUD_TEAMCHAT5,
+    HUD_TEAMCHAT6,
+    HUD_TEAMCHAT7,
+    HUD_TEAMCHAT8,
+    HUD_VOTEMSG,
+    HUD_WARMUP,
+    HUD_WEAPONLIST,
+    HUD_READYSTATUS,
+    HUD_DEATHNOTICE1,
+    HUD_DEATHNOTICE2,
+    HUD_DEATHNOTICE3,
+    HUD_DEATHNOTICE4,
+    HUD_DEATHNOTICE5,
+    HUD_COUNTDOWN,
+    HUD_RESPAWNTIMER,
+    HUD_STATUSBARFLAG,
+    HUD_TEAMOVERLAY1,
+    HUD_TEAMOVERLAY2,
+    HUD_TEAMOVERLAY3,
+    HUD_TEAMOVERLAY4,
+    HUD_TEAMOVERLAY5,
+    HUD_TEAMOVERLAY6,
+    HUD_TEAMOVERLAY7,
+    HUD_TEAMOVERLAY8,
+    HUD_REWARD,
+    HUD_REWARDCOUNT,
+    HUD_CONSOLE,
+    HUD_PREDECORATE1,
+    HUD_PREDECORATE2,
+    HUD_PREDECORATE3,
+    HUD_PREDECORATE4,
+    HUD_PREDECORATE5,
+    HUD_PREDECORATE6,
+    HUD_PREDECORATE7,
+    HUD_PREDECORATE8,
+    HUD_POSTDECORATE1,
+    HUD_POSTDECORATE2,
+    HUD_POSTDECORATE3,
+    HUD_POSTDECORATE4,
+    HUD_POSTDECORATE5,
+    HUD_POSTDECORATE6,
+    HUD_POSTDECORATE7,
+    HUD_POSTDECORATE8,
+    HUD_MAX
+} hudNumber_t;
+
+// all the hudelements will be stored in cgs
+// and not be cleared during tournament restart
+typedef struct hudElement_s {
+    float       angles[3];
+    float       bgcolor[4];
+    float       color[4];
+    qboolean    doublebar;
+    float       fade[4];
+    qboolean    fill;
+    int         font;
+    int         fontSize[2];
+    qhandle_t   image;
+    qhandle_t   model;
+    //qboolean  monospace; no monospace fonts so far
+    float       offset[3];
+    float       rect[4];
+    char        text[64];
+    int         textalign;
+    int         textstyle;
+    int         time;
+    qboolean    inUse;
+} hudElement_t;
+
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
@@ -1075,6 +1204,8 @@ typedef struct {
 
     // media
     cgMedia_t       media;
+    //hudElement
+    hudElement_t    hud[HUD_MAX];
 
 } cgs_t;
 
@@ -1473,6 +1604,11 @@ void CG_TransitionPlayerState(playerState_t* ps, playerState_t* ops);
 void CG_CheckChangedPredictableEvents(playerState_t* ps);
 
 
+//
+// cg_superhud.c
+//
+void CG_LoadSuperhud(void);
+
 //===============================================
 
 //
@@ -1640,6 +1776,10 @@ qboolean    trap_Key_IsDown(int keynum);
 int         trap_Key_GetCatcher(void);
 void        trap_Key_SetCatcher(int catcher);
 int         trap_Key_GetKey(const char* binding);
+
+int         trap_PC_LoadSource(const char* filename);
+int         trap_PC_FreeSource(int handle);
+int         trap_PC_ReadToken(int handle, pc_token_t* pc_token);
 
 
 typedef enum {

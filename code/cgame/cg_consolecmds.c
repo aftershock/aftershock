@@ -500,7 +500,8 @@ static consoleCommand_t commands[] = {
 #endif
     { "startOrbit", CG_StartOrbit_f },
     //{ "camera", CG_Camera_f },
-    { "loaddeferred", CG_LoadDeferredPlayers }
+    { "loaddeferred", CG_LoadDeferredPlayers },
+    { "loadhud", CG_LoadSuperhud }
 };
 
 
