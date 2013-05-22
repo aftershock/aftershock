@@ -446,7 +446,10 @@ static qboolean PM_CheckWallJump(void) {
     VectorCopy(trace.plane.normal, normal);
     VectorMA(pm->ps->velocity, -2*DotProduct(pm->ps->velocity, normal), normal, pm->ps->velocity);
     VectorScale(pm->ps->velocity, velLenght, pm->ps->velocity);
-    pm->ps->velocity[2] = JUMP_VELOCITY;
+    if (pm->ps->velocity[2] < 0) {
+        pm->ps->velocity[2] = 0;
+    }
+    pm->ps->velocity[2] += JUMP_VELOCITY;
     PM_AddEvent(EV_JUMP);
     
     if (pm->cmd.forwardmove >= 0) {
