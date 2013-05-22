@@ -378,8 +378,80 @@ static qboolean PM_CheckJump(void) {
 
     pm->ps->groundEntityNum = ENTITYNUM_NONE;
     pm->ps->velocity[2] = JUMP_VELOCITY;
+    
     PM_AddEvent(EV_JUMP);
 
+    if (pm->cmd.forwardmove >= 0) {
+        PM_ForceLegsAnim(LEGS_JUMP);
+        pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+    } else {
+        PM_ForceLegsAnim(LEGS_JUMPB);
+        pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
+    }
+
+    return qtrue;
+}
+
+/*
+=============
+PM_CheckWallJump
+=============
+*/
+static qboolean PM_CheckWallJump(void) {
+    vec3_t      point;
+    vec3_t      vel;
+    float       velLenght;
+    vec3_t      normal;
+    trace_t     trace;
+    
+    if (pm->ps->pm_flags & PMF_RESPAWNED) {
+        return qfalse;      // don't allow jump until all buttons are up
+    }
+
+    if (pm->cmd.upmove < 10) {
+        // not holding jump
+        return qfalse;
+    }
+    
+    // must wait for jump to be released
+    if (pm->ps->pm_flags & PMF_JUMP_HELD) {
+        // clear upmove so cmdscale doesn't lower running speed
+        pm->cmd.upmove = 0;
+        return qfalse;
+    }
+    
+    VectorCopy(pm->ps->velocity, vel);
+    vel[2] = 0;
+    VectorMA(pm->ps->origin, 20/sqrt(DotProduct(vel ,vel)), vel, point);
+    
+    pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, CONTENTS_SOLID );
+    
+    // do something corrective if the trace starts in a solid...
+    if (trace.allsolid) {
+            return qfalse;
+    }
+
+    // if the trace didn't hit anything
+    if (trace.fraction == 1.0) {
+        return qfalse;
+    }
+    
+    if ( !(trace.surfaceFlags & SURF_WALLJUMP) ) {
+        return qfalse;
+    }
+    
+    pm->ps->pm_flags |= PMF_JUMP_HELD;
+    
+    velLenght = VectorNormalize(pm->ps->velocity);
+    VectorCopy(trace.plane.normal, normal);
+    VectorMA(pm->ps->velocity, -2*DotProduct(pm->ps->velocity, normal), normal, pm->ps->velocity);
+    VectorScale(pm->ps->velocity, velLenght, pm->ps->velocity);
+    if (pm->ps->velocity[2] < 0) {
+        pm->ps->velocity[2] = 0;
+    }
+    pm->ps->velocity[2] += JUMP_VELOCITY;
+    PM_AddEvent(EV_JUMP);
+    
     if (pm->cmd.forwardmove >= 0) {
         PM_ForceLegsAnim(LEGS_JUMP);
         pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
@@ -654,6 +726,8 @@ static void PM_AirMove(void) {
 #endif
 
     PM_StepSlideMove(qtrue);
+    
+    PM_CheckWallJump();
 }
 
 /*
